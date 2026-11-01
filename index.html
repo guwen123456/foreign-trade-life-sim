@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>外贸人生模拟器</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{width:100%;min-height:100%;background:#0f172a;font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:#e2e8f0}
+  body{background:radial-gradient(1000px 600px at 50% -10%,#1e3a5f 0%,#0f172a 60%) fixed}
+  #app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:14px 14px calc(18px + env(safe-area-inset-bottom))}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .logo{font-size:19px;font-weight:800;letter-spacing:1px}
+  .logo small{display:block;font-size:11px;font-weight:400;color:#94a3b8;letter-spacing:0}
+  #muteBtn{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-size:16px;cursor:pointer}
+  #stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
+  .stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:7px 4px;text-align:center}
+  .stat .k{font-size:11px;color:#94a3b8}
+  .stat .v{font-size:14px;font-weight:700;margin-top:2px;white-space:nowrap}
+  .stat .v.bad{color:#f87171}.stat .v.good{color:#4ade80}
+  #timebar{display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin:2px 2px 10px}
+  #stage{flex:1;display:flex;flex-direction:column}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px 16px;margin-bottom:12px;animation:in .25s ease}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;background:#0ea5e9;color:#fff;margin-bottom:10px}
+  .card .tag.event{background:#f59e0b}.card .tag.year{background:#8b5cf6}.card .tag.sys{background:#64748b}
+  .card h2{font-size:19px;line-height:1.45;margin-bottom:8px}
+  .card p{font-size:14px;line-height:1.75;color:#cbd5e1;white-space:pre-line}
+  .delta{margin-top:10px;font-size:13px;line-height:1.9;color:#fbbf24;white-space:pre-line}
+  .choices{display:flex;flex-direction:column;gap:9px}
+  button.choice{appearance:none;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#f1f5f9;border-radius:12px;padding:13px 14px;font-size:15px;text-align:left;cursor:pointer;line-height:1.5}
+  button.choice:active{background:rgba(14,165,233,.35)}
+  button.choice .sub{display:block;font-size:12px;color:#94a3b8;margin-top:2px}
+  button.primary{background:linear-gradient(90deg,#f59e0b,#ea580c);border:none;color:#fff;font-weight:700;text-align:center}
+  #log{margin-top:6px;border-top:1px dashed rgba(255,255,255,.15);padding-top:10px}
+  #log h3{font-size:12px;color:#64748b;margin-bottom:6px;font-weight:500}
+  #log div{font-size:12.5px;color:#94a3b8;line-height:1.7}
+  .center{text-align:center}
+  .big{font-size:30px;font-weight:800;line-height:1.4}
+  .ending-emoji{font-size:54px;margin:8px 0}
+  .kv{display:flex;justify-content:space-between;font-size:14px;padding:7px 2px;border-bottom:1px solid rgba(255,255,255,.07)}
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">外贸人生模拟器<small>Foreign Trade Life Simulator · 深圳篇</small></div>
+    <button id="muteBtn" title="声音开关">🔊</button>
+  </header>
+  <div id="stats" class="hidden">
+    <div class="stat"><div class="k">💰 现金</div><div class="v" id="sCash">¥0</div></div>
+    <div class="stat"><div class="k">🤝 客户</div><div class="v" id="sClients">0</div></div>
+    <div class="stat"><div class="k">⭐ 口碑</div><div class="v" id="sRep">50</div></div>
+    <div class="stat"><div class="k">🔋 精力</div><div class="v" id="sEnergy">80</div></div>
+    <div class="stat"><div class="k">🎓 经验</div><div class="v" id="sExp">10</div></div>
+  </div>
+  <div id="timebar" class="hidden"><span id="tWhen">24岁 · 第1个月</span><span id="tJob">外贸业务员 · 底薪 ¥4500</span></div>
+  <div id="stage"></div>
+  <div id="log" class="hidden"><h3>📒 人生日志</h3><div id="logBody"></div></div>
+</div>
+<script>
+"use strict";
+/* ============================== utils ============================== */
+function $(id){return document.getElementById(id);}
+function rnd(a,b){return a+Math.random()*(b-a);}
+function ri(a,b){return Math.floor(rnd(a,b+1));}
+function chance(p){return Math.random()<p;}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function fmt(n){
+  var neg=n<0; n=Math.abs(Math.round(n));
+  var s = n>=10000 ? (n/10000).toFixed(n>=100000?0:1).replace(/\.0$/,'')+'万' : String(n);
+  return (neg?'-¥':'¥')+s;
+}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+/* ============================== audio (procedural, no assets) ============================== */
+var AC=null,muted=false,sfxGain=null,musGain=null;
+function ensureAC(){
+  try{
+    if(!AC){
+      AC=new (window.AudioContext||window.webkitAudioContext)();
+      sfxGain=AC.createGain(); sfxGain.gain.value=muted?0:1; sfxGain.connect(AC.destination);
+      musGain=AC.createGain(); musGain.gain.value=muted?0:0.8; musGain.connect(AC.destination);
+    }
+    if(AC.state==='suspended') AC.resume();
+    return AC;
+  }catch(e){ return null; }
+}
+function beep(f,d,type,g){
+  if(muted) return; var ac=ensureAC(); if(!ac) return;
+  try{
+    var o=ac.createOscillator(),v=ac.createGain();
+    o.type=type||'sine'; o.frequency.value=f;
+    v.gain.setValueAtTime(g||0.07,ac.currentTime);
+    v.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+(d||0.1));
+    o.connect(v); v.connect(sfxGain); o.start(); o.stop(ac.currentTime+(d||0.1));
+  }catch(e){}
+}
+var MUS={on:false,step:0,nextT:0,timer:null,scheduled:0};
+var MEL=[523.25,0,659.25,0,783.99,0,659.25,0, 880,0,783.99,659.25, 587.33,0,0,0,
+         523.25,0,659.25,0,783.99,0,880,0, 783.99,659.25,587.33,659.25, 523.25,0,0,0];
+var BASSN=[130.81,98.00,110.00,87.31];
+var PADN=[[261.63,329.63],[196.00,246.94],[220.00,261.63],[174.61,220.00]];
+function noteAt(freq,t,dur,type,gain){
+  var o=AC.createOscillator(),v=AC.createGain();
+  o.type=type; o.frequency.value=freq;
+  v.gain.setValueAtTime(0.0001,t);
+  v.gain.exponentialRampToValueAtTime(gain,t+0.03);
+  v.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(v); v.connect(musGain); o.start(t); o.stop(t+dur+0.05);
+}
+function scheduleStep(step,t){
+  var bar=Math.floor(step/8)%4, inBar=step%8;
+  var mel=MEL[step%32];
+  if(mel) noteAt(mel,t,0.24,'triangle',0.035);
+  if(inBar===0){ noteAt(BASSN[bar],t,0.45,'sine',0.05); noteAt(PADN[bar][0],t,2.16,'sine',0.013); noteAt(PADN[bar][1],t,2.16,'sine',0.011); }
+  if(inBar===4) noteAt(BASSN[bar]*1.5,t,0.35,'sine',0.035);
+  MUS.scheduled++;
+}
+function startMusic(){
+  var ac=ensureAC(); if(!ac||MUS.on) return;
+  MUS.on=true; MUS.step=0; MUS.nextT=ac.currentTime+0.06;
+  MUS.timer=setInterval(function(){
+    if(!AC) return;
+    while(MUS.nextT<AC.currentTime+0.26){ scheduleStep(MUS.step,MUS.nextT); MUS.nextT+=0.27; MUS.step++; }
+  },105);
+}
+function setMuted(m){
+  muted=m; $('muteBtn').textContent=m?'🔇':'🔊';
+  if(sfxGain) sfxGain.gain.value=m?0:1;
+  if(musGain) musGain.gain.value=m?0:0.8;
+}
+$('muteBtn').addEventListener('click',function(){ ensureAC(); setMuted(!muted); });
+
+/* ============================== game state ============================== */
+var TOTAL_MONTHS=60;
+var S=null;
+function newGame(){
+  S={
+    month:1, cash:30000, clients:0, rep:50, energy:80, exp:10,
+    salary:4500, job:'外贸业务员', ownBoss:false,
+    sick:0, totalEarned:0, totalOrders:0, biggestDeal:0, deals:0,
+    seen:{}, log:[], over:false, promoted40:false, promoted70:false
+  };
+}
+function ageStr(){
+  var total=24*12+(S.month-1);
+  return Math.floor(total/12)+'岁'+(total%12+1)+'月';
+}
+function addLog(t){ S.log.unshift('· '+t); if(S.log.length>7) S.log.pop(); }
+function fx(o){
+  var lines=[];
+  if(o.cash){ S.cash+=o.cash; if(o.cash>0){S.totalEarned+=o.cash;} lines.push('现金 '+(o.cash>0?'+¥':'-¥')+(Math.abs(o.cash)>=10000?(Math.abs(o.cash)/10000).toFixed(Math.abs(o.cash)>=100000?0:1).replace(/\.0$/,'')+'万':Math.abs(Math.round(o.cash)))); }
+  if(o.clients){ S.clients=Math.max(0,S.clients+o.clients); lines.push('客户 '+(o.clients>0?'+':'')+o.clients+' → '+S.clients); }
+  if(o.rep){ S.rep=clamp(S.rep+o.rep,0,100); lines.push('口碑 '+(o.rep>0?'+':'')+o.rep+' → '+S.rep); }
+  if(o.energy){ S.energy=clamp(S.energy+o.energy,0,100); lines.push('精力 '+(o.energy>0?'+':'')+o.energy+' → '+S.energy); }
+  if(o.exp){ S.exp=clamp(S.exp+o.exp,0,100); lines.push('经验 '+(o.exp>0?'+':'')+o.exp+' → '+S.exp); }
+  if(o.salary){ S.salary=o.salary; lines.push('底薪 → '+fmt(o.salary)+'/月'); }
+  return lines.join('\n');
+}
+function renderStats(){
+  $('stats').classList.remove('hidden');
+  $('timebar').classList.remove('hidden');
+  $('log').classList.remove('hidden');
+  $('sCash').textContent=fmt(S.cash);
+  $('sCash').className='v'+(S.cash<0?' bad':(S.cash>=100000?' good':''));
+  $('sClients').textContent=S.clients;
+  $('sRep').textContent=S.rep;
+  $('sEnergy').textContent=S.energy;
+  $('sEnergy').className='v'+(S.energy<=25?' bad':'');
+  $('sExp').textContent=S.exp;
+  $('tWhen').textContent=ageStr()+' · 第 '+S.month+' / '+TOTAL_MONTHS+' 个月';
+  $('tJob').textContent=S.ownBoss?'自己当老板 · 无底薪':(S.job+' · 底薪 '+fmt(S.salary));
+  $('logBody').innerHTML=S.log.map(function(x){return '<div>'+x+'</div>';}).join('');
+}
+function card(tag,tagCls,title,text,deltaText){
+  var d='';
+  if(deltaText) d='<div class="delta">'+deltaText+'</div>';
+  $('stage').innerHTML='<div class="card"><span class="tag '+(tagCls||'')+'">'+tag+'</span><h2>'+title+'</h2><p>'+text+'</p>'+d+'</div><div class="choices" id="choices"></div>';
+}
+function choices(list){
+  var box=$('choices'); box.innerHTML='';
+  list.forEach(function(c){
+    var b=document.createElement('button');
+    b.className='choice'+(c.primary?' primary':'');
+    b.innerHTML=c.t+(c.sub?'<span class="sub">'+c.sub+'</span>':'');
+    b.addEventListener('click',function(){ ensureAC(); startMusic(); c.fn(); });
+    box.appendChild(b);
+  });
+}
+function continueBtn(label,fn){
+  choices([{t:label||'继续 →',primary:true,fn:fn}]);
+}
+
+/* ============================== monthly settlement ============================== */
+function settleMonth(){
+  // returns narration lines for fixed income/costs (applied silently before action result shows)
+  var lines=[];
+  if(!S.ownBoss && S.salary>0){ S.cash+=S.salary; S.totalEarned+=S.salary; lines.push('底薪到账 '+fmt(S.salary)); }
+  var living=S.ownBoss?5200:3800;
+  S.cash-=living; lines.push('生活开销 -¥'+living);
+  if(S.ownBoss){ S.cash-=3500; lines.push('公司房租社保 -¥3500'); }
+  if(S.clients>=8&&chance(0.08)){ S.clients-=1; lines.push('一个老客户慢慢没了消息（客户流失 -1）'); }
+  return lines;
+}
+
+/* ============================== actions ============================== */
+var ACTIONS=[
+  {id:'dev',t:'📧 开发客户',sub:'发开发信 / 领英 / 谷歌搜索买家',fn:function(){
+    var gain=0;
+    var p=0.30+S.exp*0.004+(S.rep-50)*0.002;
+    if(chance(p)) gain=1;
+    if(chance(0.06)) gain+=1;
+    var d=fx({clients:gain,exp:ri(1,3),energy:-10});
+    var txt=gain>0?('这个月你泡在谷歌和领英里，扒了上百个买家邮箱，开发信一封封发出去。\n功夫不负有心人，'+gain+' 个客户回复并留下了联系方式！'):'这个月你发了上百封开发信，大多石沉大海，只有几个礼貌性的自动回复。\n开发就是概率游戏，名单越厚，运气越近。';
+    return {txt:txt,d:d};
+  }},
+  {id:'follow',t:'📦 跟进订单',sub:'报价、打样、出货，靠客户吃饭',fn:function(){
+    if(S.clients===0){
+      var d0=fx({exp:2,energy:-6});
+      return {txt:'你还没有客户，只能帮同事整理报价单和装箱单。\n跟单的门道，你倒是偷学了不少。',d:d0};
+    }
+    var per=rnd(500,1200)*(0.6+S.rep/100)*(S.ownBoss?1.9:1);
+    var total=Math.round(per*S.clients);
+    var orderChance=0.18+S.rep*0.002;
+    var big=0;
+    if(chance(orderChance)){ big=ri(12000,45000); total+=big; S.deals++; if(big>S.biggestDeal)S.biggestDeal=big; }
+    S.totalOrders++;
+    var d=fx({cash:total,energy:-9,rep:chance(0.3)?2:0,exp:1});
+    var txt='你盯着 '+S.clients+' 个客户的询盘和订单：报价、PI、定金、生产、出货，一通忙活。\n本月提成到手 '+fmt(total)+'。'+(big?('\n其中有一笔 '+fmt(big)+' 的大单顺利出了货，客户在 WhatsApp 上给你发了个 👍'):'');
+    return {txt:txt,d:d};
+  }},
+  {id:'learn',t:'📚 学习提升',sub:'英语 / 选品 / 平台课，花钱买经验',fn:function(){
+    var d=fx({cash:-1500,exp:ri(4,6),energy:-5});
+    return {txt:'你报了个线上课，晚上啃英语、研究选品和平台规则。\n短期内看不到钱，但谈判桌上能听懂客户的潜台词，就是最贵的技能。',d:d};
+  }},
+  {id:'fair',t:'🏭 展会 / 跑工厂',sub:'广交会、验厂、和供应商喝茶',fn:function(){
+    var gain=chance(0.5)?ri(1,2):0;
+    var d=fx({cash:-4000,clients:gain,rep:3,energy:-12,exp:2});
+    var txt='你跑了一趟展会和两家工厂，名片收了一沓，脚也走肿了。'+(gain?('\n现场谈下 '+gain+' 个意向客户，还摸清了两家靠谱供应商的底价。'):'\n这次没谈下客户，但供应链的行情你心里有数了。');
+    return {txt:txt,d:d};
+  }},
+  {id:'rest',t:'🌴 休息调整',sub:'回血，顺便想想人生',fn:function(){
+    var d=fx({energy:ri(22,30),rep:0});
+    return {txt:'你给自己放了个假：睡到自然醒，去海边走了走，把手机调成免打扰。\n外贸是长跑，拼的不是谁熬夜多，是谁活得久。',d:d};
+  }}
+];
+
+/* ============================== events ============================== */
+var EVENTS=[
+ {id:'night_inquiry',cond:function(){return S.clients>=0;},title:'深夜的 WhatsApp',
+  text:'凌晨 1 点，手机震动：一个中东客户发来一长串询盘，问得很细，像是真买家。你的眼皮已经在打架了。',
+  cs:[
+   {t:'立刻爬起来回复',sub:'精力 -8，口碑 +4，可能 +1 客户',fn:function(){var g=chance(0.6)?1:0;var d=fx({energy:-8,rep:4,clients:g,exp:2});return '你顶着黑眼圈把报价和产品细节发了过去。对方回了句 "You are very professional"。'+(g?'这个客户，留下了。':'虽然没立刻下单，但好感度拉满。')+'|'+d;}},
+   {t:'明早再说，睡觉要紧',sub:'精力 +6',fn:function(){var d=fx({energy:6});return '你睡了个好觉。第二天回复时，客户说已经在跟另一家聊了。——机会这东西，不等人，但命是自己的。|'+d;}}
+  ]},
+ {id:'price_up',cond:function(){return S.clients>=1;},title:'工厂突然涨价',
+  text:'合作工厂通知：原材料涨了，下批货单价涨 8%。你手上有个刚报出去价的客户，合同还没签。',
+  cs:[
+   {t:'自己扛，和客户按原价签',sub:'口碑 +6，本月利润 -¥6000',fn:function(){var d=fx({rep:6,cash:-6000});return '你咬着牙按原价签了。客户听说后沉默了几秒，说："以后我的单都给你。"——口碑就是这么攒的。|'+d;}},
+   {t:'跟客户摊牌漲价',sub:'可能丢单，口碑不变',fn:function(){if(chance(0.45)){var d=fx({clients:-1});return '客户皱着眉去了别家询价。唉，丢了一个客户。|'+d;}var d2=fx({rep:2});return '你把工厂的涨价函转给客户看，对方表示理解，接受了新价格。真诚，永远是必杀技。|'+d2;}}
+  ]},
+ {id:'cut_price',cond:function(){return S.clients>=1;},title:'客户疯狂压价',
+  text:'一个欧洲客户拿着同行报价来找你："便宜 10%，我就把半年的量都给你。"那个价格，利润薄得像张纸。',
+  cs:[
+   {t:'接！先上量再说',sub:'现金 +¥12000，精力 -10，口碑 -2',fn:function(){var d=fx({cash:12000,energy:-10,rep:-2});S.deals++;return '单子接了，出货那晚你算了算账：忙活一个月，赚了个寂寞。但客户的量，算是先占住了。|'+d;}},
+   {t:'不接，守住底线',sub:'口碑 +3',fn:function(){var d=fx({rep:3});return '你笑着回了封邮件，把自家的质检报告和交期记录甩了过去。一个月后，客户在同行那踩了质量坑，又回来找你了。|'+d;}}
+  ]},
+ {id:'sample',cond:function(){return true;},title:'样品单的机会',
+  text:'一个澳洲新客户想先订一批样品试水，量不大，但品类对口。样品费和运费要 ¥3000。',
+  cs:[
+   {t:'寄！舍不得样品套不住订单',sub:'现金 -¥3000，概率 +1 客户',fn:function(){var g=chance(0.55)?1:0;var d=fx({cash:-3000,clients:g});return g?'样品寄出两周后，客户发来邮件："Quality is good, let\'s talk about the order." 新客户 +1！|'+d:'样品寄出去就没了下文，邮件也不回了。样品费打了水漂——这是外贸人的必修学费。|'+d;}},
+   {t:'先收费再寄样',sub:'稳妥，但可能错过',fn:function(){var d=fx({exp:1});return '客户说考虑一下，然后就没有然后了。稳妥的代价，有时候是错过。|'+d;}}
+  ]},
+ {id:'qc_fail',cond:function(){return S.clients>=1;},title:'验货发现次品',
+  text:'出货前你去验货，抽检发现一批货的做工有问题：线头多、两处开胶。船期就在三天后。',
+  cs:[
+   {t:'要求返工，哪怕延误',sub:'现金 -¥5000，口碑 +7，精力 -8',fn:function(){var d=fx({cash:-5000,rep:7,energy:-8});return '你押着工厂连夜返工，客户收到货后发来长邮件表示感谢，还介绍了同行给你认识。质量，就是外贸人的命。|'+d;}},
+   {t:'挑一挑，凑合出货',sub:'省事，但有风险',fn:function(){if(chance(0.5)){var d=fx({rep:-10,cash:-9000});return '客户收到货后投诉连连，最后索赔了一笔，还把你拉黑了。侥幸心理，是要还的。|'+d;}var d2=fx({cash:3000});return '你把明显的次品挑出来，剩下的顺利出货，客户没说什么。这次，运气站在了你这边。|'+d2;}}
+  ]},
+ {id:'freight',cond:function(){return S.clients>=1;},title:'海运费暴涨',
+  text:'货代发来消息：舱位紧张，海运费一周涨了 40%，你有两柜货等着出。客户那边还在等你的最终报价。',
+  cs:[
+   {t:'锁舱先走，差价后谈',sub:'现金 -¥8000，口碑 +3',fn:function(){var d=fx({cash:-8000,rep:3});return '你先把舱位锁了，保住交期。客户知道行情后也没多说什么——交期稳，就是最大的面子。|'+d;}},
+   {t:'等价格回落再出货',sub:'省钱的赌局',fn:function(){if(chance(0.5)){var d=fx({rep:-6});return '等了两周，运费没降，交期却误了。客户一封邮件过来，语气冷得像冰。|'+d;}var d2=fx({cash:4000});return '你赌对了：一周后运费回落，省下一笔，交期也刚好赶上。|'+d2;}}
+  ]},
+ {id:'fx_rate',cond:function(){return true;},title:'汇率过山车',
+  text:'人民币突然升值，手里几笔美元订单的利润被汇率吃掉一截。财务群里已经哀鸿遍野。',
+  cs:[
+   {t:'赶紧锁汇',sub:'稳住利润',fn:function(){var d=fx({exp:3});return '你跑去银行把能锁的都锁了，虽然少赚，但睡得着觉。老外贸都懂：不亏，就是赢。|'+d;}},
+   {t:'赌一把反弹',sub:'刺激的',fn:function(){if(chance(0.5)){var d=fx({cash:8000});return '嘿，汇率还真反弹了，你小赚一笔。|'+d;}var d2=fx({cash:-8000});return '汇率一路向北，你的利润也一路向北——飞走了。|'+d2;}}
+  ]},
+ {id:'late_pay',cond:function(){return S.clients>=1;},title:'客户拖款了',
+  text:'一笔尾款到期 30 天了，客户财务"在走流程"。这笔钱卡着，你的现金流开始喘气。',
+  cs:[
+   {t:'天天温柔催款',sub:'精力 -8，口碑 +2，大概率收回',fn:function(){if(chance(0.8)){var d=fx({cash:15000,energy:-8,rep:2});return '第 9 封催款邮件发出去的第二天，钱到账了。温柔而坚定，是催款的最高境界。|'+d;}var d2=fx({energy:-8});return '又拖了一个月，对方还在"走流程"。你叹了口气，把这家客户的账期权限关了。|'+d2;}},
+   {t:'强硬警告要停货',sub:'可能撕破脸',fn:function(){if(chance(0.5)){var d=fx({cash:15000,rep:-4});return '钱是收回来了，但客户的脸色不好看。生意场上，没有永远的朋友，只有永远的账期。|'+d;}var d2=fx({clients:-1,rep:-3});return '对方直接不回消息了，还放话要换供应商。唉，催款是门艺术，你这次弹破了弦。|'+d2;}}
+  ]},
+ {id:'poach',cond:function(){return S.exp>=25&&!S.ownBoss;},once:true,title:'猎头的电话',
+  text:'一家同行公司开出条件：底薪翻倍，签字费 ¥20000，前提是——带走你手里的客户。你看着工资条，心动了。',
+  cs:[
+   {t:'跳！人往高处走',sub:'现金 +¥20000，底薪→¥8000，客户 -2，口碑 -5',fn:function(){var d=fx({cash:20000,salary:8000,clients:-2,rep:-5});S.job='外贸主管';return '你跳过去了，两个客户跟着你走了，剩下的留在了老东家。新办公室的椅子还没坐热，KPI 就压了下来。|'+d;}},
+   {t:'不跳，做人要有始有终',sub:'口碑 +5，经验 +4',fn:function(){var d=fx({rep:5,exp:4});return '你拒绝了。老板不知从哪听说了这事，年底给你多发了一个月奖金。忠诚不值钱？有时候也值一点。|'+d;}}
+  ]},
+ {id:'big_buyer',cond:function(){return S.rep>=55;},title:'展会上的人脉',
+  text:'行业聚餐上，你邻座是个低调的大买家，一年采购额七位数（美元）。他对你的产品细节对答如流很感兴趣，递了名片。',
+  cs:[
+   {t:'认真跟进这个大客户',sub:'精力 -10，概率 +1 大客户（现金大单）',fn:function(){if(chance(0.55)){var d=fx({clients:1,cash:30000,energy:-10,rep:4});S.deals++;S.biggestDeal=Math.max(S.biggestDeal,30000);return '三个月后，第一张订单落地：¥30000 的提成只是开始。你的客户名单里，多了一条大鱼。|'+d;}var d2=fx({energy:-10,exp:3});return '跟进了三个月，对方还在比价。大客户的门，敲一次不开，就敲十次。|'+d2;}},
+   {t:'加个微信就好，随缘',sub:'精力 +3',fn:function(){var d=fx({energy:3});return '你加了微信，逢年过节群发祝福。人脉这东西，细水长流也是一种打法。|'+d;}}
+  ]},
+ {id:'tiktok',cond:function(){return S.month>=10;},once:true,title:'新的风口？',
+  text:'朋友在 TikTok Shop 东南亚卖小商品，月流水翻了几倍，拉你一起干：你出选品和运营，他出店铺。前期投入约 ¥15000。',
+  cs:[
+   {t:'上车！副业搞起来',sub:'现金 -¥15000，后续有惊喜',fn:function(){S.seen.tiktokJoined=true;var d=fx({cash:-15000,exp:4});return '你白天跟单，晚上剪视频上链接，累是真累，但后台的订单提醒音，是世界上最动听的闹钟。|'+d;}},
+   {t:'算了，专注主业',sub:'精力 +4',fn:function(){var d=fx({energy:4});return '你摇摇头。风口年年有，能站住的没几个——你决定先把手里的客户伺候好。|'+d;}}
+  ]},
+ {id:'tiktok_payoff',cond:function(){return !!S.seen.tiktokJoined;},once:true,title:'副业开花了',
+  text:'你的 TikTok 小店有一款手机壳突然爆了，昨晚一夜出了 400 单。朋友问你：要不要加大投入？',
+  cs:[
+   {t:'加大！备货冲量',sub:'现金 ±大额',fn:function(){if(chance(0.6)){var d=fx({cash:45000,energy:-8});return '这波流量你接住了，一个月净赚 ¥45000。副业收入第一次超过了工资，你看着银行卡，愣了很久。|'+d;}var d2=fx({cash:-25000,energy:-8});return '货备好了，流量却没了，库存压了一屋子。电商的潮水，退得比涨得还快。|'+d2;}},
+   {t:'见好就收，落袋为安',sub:'现金 +¥18000',fn:function(){var d=fx({cash:18000});return '你清完库存就收手，落袋 ¥18000。朋友说你胆小，你说这叫纪律。|'+d;}}
+  ]},
+ {id:'family',cond:function(){return S.month>=18;},once:true,title:'家里的电话',
+  text:'妈妈打电话来："隔壁小王都买房了，你在深圳也几年了，要不……回来考个编？"电话那头，是熟悉的心酸。',
+  cs:[
+   {t:'寄钱回家，继续闯',sub:'现金 -¥20000，经验 +3',fn:function(){var d=fx({cash:-20000,exp:3});return '你给家里转了 ¥20000，说这边挺好的。挂了电话，你看着写字楼的灯火，又打开了客户名单。|'+d;}},
+   {t:'认真考虑回去',sub:'精力 +10，口碑 -2',fn:function(){var d=fx({energy:10,rep:-2});return '你请假回家待了一周，吃了妈妈做的饭。回来时行李箱里塞满了腊肉——你还是决定再闯几年。|'+d;}}
+  ]},
+ {id:'startup',cond:function(){return S.cash>=120000&&!S.ownBoss;},once:true,title:'创业的念头',
+  text:'你算了笔帐：客户在手，供应商熟，存款也攒了些。继续打工，还是出来单干？这是每个外贸人都会走到的一步。',
+  cs:[
+   {t:'干！注册公司单干',sub:'现金 -¥80000，无底薪，但订单收益 ×2.2',fn:function(){S.ownBoss=true;S.salary=0;S.job='创始人';var d=fx({cash:-80000,exp:6,rep:3});return '营业执照拿到的那天，你在出租屋里请自己吃了顿好的。从今天起，每一单都是给自己打的。|'+d;}},
+   {t:'再等等，时机未到',sub:'稳',fn:function(){var d=fx({energy:4});return '你把念头压了下去。创业不急，先把现金垫再攒厚一点。(存款更高时，这个念头还会再来)|'+d;}}
+  ]},
+ {id:'bad_debt',cond:function(){return S.clients>=3&&S.rep<45;},title:'客户跑路了',
+  text:'一个合作半年的小客户突然失联：WhatsApp 不回，公司网站关了，还有一笔 ¥18000 的货款没结。',
+  cs:[
+   {t:'认栽，长记性',sub:'现金 -¥18000，经验 +6',fn:function(){var d=fx({cash:-18000,exp:6});return '你在笔记本上记下：新客户，先款后货；大订单，查背调。这 ¥18000，买的是下半辈子的谨慎。|'+d;}},
+   {t:'找同行打听+发圈曝光',sub:'精力 -6，口碑 +3，概率追回一半',fn:function(){if(chance(0.4)){var d=fx({cash:-8000,energy:-6,rep:3});return '通过同行辗转联系上对方老板，追回了一部分。圈子很小，名声是硬通货。|'+d;}var d2=fx({cash:-18000,energy:-6,rep:3});return '折腾一圈，人是真找不到了。但你的曝光帖在圈子里传开，几个同行私信谢你避坑。|'+d2;}}
+  ]},
+ {id:'inspect_visit',cond:function(){return S.clients>=2;},title:'客户要来验厂',
+  text:'一个重要客户下周飞来深圳验厂，这是能不能拿下年度框架订单的关键一关。接待规格，你来定。',
+  cs:[
+   {t:'高规格接待',sub:'现金 -¥6000，口碑 +8，概率大单',fn:function(){var win=chance(0.6);var d=fx({cash:-6000,rep:8});var extra='';if(win){S.cash+=40000;S.totalEarned+=40000;S.deals++;extra='验厂顺利，框架订单当场敲定，预付提成 ¥40000 先到账！';}return '你陪客户看产线、验品质、吃海鲜，安排得明明白白。'+extra+'|'+d+(win?'\n现金 +¥40000':'');}},
+   {t:'正常流程接待',sub:'省钱，看发挥',fn:function(){var d=fx({rep:2,energy:-4});return '该看的看了，该谈的谈了。客户说回去开会讨论——外贸版的"等通知"。|'+d;}}
+  ]},
+ {id:'burnout',cond:function(){return S.energy<=30;},title:'身体发来警告',
+  text:'连续加班后，你在工位上心慌了好一阵。体检报告也到了：脂肪肝、颈椎、睡眠质量，全线飘红。',
+  cs:[
+   {t:'请一周假，好好休整',sub:'精力 +30，现金 -¥3000',fn:function(){var d=fx({energy:30,cash:-3000});return '你关掉手机睡了三天，又去做了个全套体检。钱没了可以再赚，肝没了可没地方买。|'+d;}},
+   {t:'扛一扛，忙完这阵再说',sub:'精力 -12，经验 +2',fn:function(){var d=fx({energy:-12,exp:2});S.seen.warned=true;return '你灌了杯咖啡继续干。身体把这笔账，默默记下了。|'+d;}}
+  ]},
+ {id:'platform',cond:function(){return S.month>=6;},once:true,title:'平台业务员的电话',
+  text:'阿里国际站的客户经理找到你：开通店铺一年 ¥30000，能换来更多询盘。你的同行们，有人靠它吃肉，有人说它是智商税。',
+  cs:[
+   {t:'开！流量就是命',sub:'现金 -¥30000，客户 +2，经验 +4',fn:function(){var d=fx({cash:-30000,clients:2,exp:4});return '店铺开起来了，询盘果然多了起来，其中两个慢慢聊成了客户。贵是贵，但流量这东西，不买就没有。|'+d;}},
+   {t:'不开，自己开发更香',sub:'经验 +3',fn:function(){var d=fx({exp:3});return '你婉拒了，继续死磕谷歌开发和老客户转介绍。省下的三万块，是你的底气。|'+d;}}
+  ]},
+ {id:'gift',cond:function(){return S.clients>=1;},title:'客户的"小心意"',
+  text:'逢年过节，一个供应商给你塞了个厚厚的红包，说"以后多照顾"。接，还是不接？',
+  cs:[
+   {t:'不接，规矩就是规矩',sub:'口碑 +4',fn:function(){var d=fx({rep:4});return '你笑着把红包推回去，请他吃了顿饭。干净，是在这一行走远的底气。|'+d;}},
+   {t:'收下吧，大家都这样',sub:'现金 +¥5000，口碑 -6',fn:function(){var d=fx({cash:5000,rep:-6});return '钱揣进口袋的时候，心里有点发虚。有些口子，一旦开了就收不住。|'+d;}}
+  ]},
+ {id:'team',cond:function(){return S.exp>=60&&!S.ownBoss;},once:true,title:'带团队的机会',
+  text:'老板找你谈话：公司准备扩组，想让你带三个新人，底薪涨到 ¥12000，但你自己的提成比例要降一点。',
+  cs:[
+   {t:'接，往上走一步',sub:'底薪→¥12000，经验 +6',fn:function(){var d=fx({salary:12000,exp:6});S.job='外贸经理';return '你成了经理，开始带人看报表、过询盘。自己打单和带人打单，是两种完全不同的能力。|'+d;}},
+   {t:'不接，我就爱打单',sub:'经验 +3，精力 +3',fn:function(){var d=fx({exp:3,energy:3});return '你笑笑：我还是喜欢自己谈客户。 specialists 也有 specialists 的活法。|'+d;}}
+  ]}
+];
+
+/* ============================== flow ============================== */
+function showStart(){
+  newGame();
+  $('stats').classList.add('hidden'); $('timebar').classList.add('hidden'); $('log').classList.add('hidden');
+  $('stage').innerHTML='<div class="card"><span class="tag">序章 · 深圳</span><h2>24 岁，你拖着行李箱走出深圳北站</h2><p>存款 ¥30000，一部手机，一脑子 "To be or not to be" 式的英语。\n你入职了一家小外贸公司，底薪 ¥4500，提成靠自己。\n\n接下来 5 年（60 个月），每个月你可以选择怎么过：开发客户、跟进订单、学习、跑展会，或者休息。\n中间会有深夜询盘、工厂涨价、客户拖款、猎头挖角、创业风口……\n\n目标很简单：别破产，别累垮，在 29 岁那年，看看你能攒下多少身家，走出哪一种外贸人生。</p></div><div class="choices" id="choices"></div>';
+  choices([{t:'开始我的外贸人生 →',primary:true,fn:function(){ addLog('入职深圳一家外贸公司，底薪 ¥4500'); startMonth(); }}]);
+}
+function startMonth(){
+  if(S.month>TOTAL_MONTHS){ return showEnding(); }
+  if(S.cash<-10000){ return showEnding('broke'); }
+  renderStats();
+  var settle=settleMonth();
+  if(S.month>1) addLog(ageStr()+'：'+settle.join('，'));
+  // promotion checks
+  var promo='';
+  if(!S.ownBoss&&!S.promoted40&&S.exp>=40){ S.promoted40=true; S.salary=Math.max(S.salary,6500); S.job='外贸主管'; promo='老板把你叫进办公室：经验涨了，底薪涨到 ¥6500，头衔也升了——外贸主管。'; }
+  if(!S.ownBoss&&!S.promoted70&&S.exp>=70){ S.promoted70=true; S.salary=Math.max(S.salary,9000); if(S.job==='外贸主管')S.job='高级主管'; promo='又升了：底薪 ¥9000。你已经是公司里最能打的那几个人之一。'; }
+  renderStats();
+  card('第 '+S.month+' 个月 · '+ageStr(),'','这个月，怎么过？',(promo?promo+'\n':'')+'（每月固定：'+settle.join('；')+'）');
+  choices(ACTIONS.map(function(a){
+    return {t:a.t,sub:a.sub,fn:function(){ doAction(a); }};
+  }));
+}
+function doAction(a){
+  var r=a.fn();
+  addLog(ageStr()+' '+a.t+'：'+(r.d?r.d.replace(/\n/g,'，'):''));
+  renderStats();
+  if(S.energy<=0){ return showSick(r); }
+  if(S.cash<-10000){ return showEnding('broke'); }
+  card('行动结果','sys',a.t,r.txt,r.d);
+  continueBtn('看看这个月还有什么事 →',function(){ afterAction(); });
+}
+function showSick(prev){
+  S.sick++;
+  var d=fx({cash:-4000,energy:45});
+  addLog('病倒了！住院观察，医疗费 -¥4000，精力回 45');
+  renderStats();
+  card('突发','event','你病倒了','连续透支，身体直接罢工。你在医院躺了三天，看着天花板想明白一件事：\n外贸是马拉松，不是百米冲刺。',d+'\n（第 '+S.sick+' 次病倒；病倒 3 次会影响最终结局）');
+  beep(180,0.25,'sawtooth',0.06);
+  continueBtn('出院，继续 →',function(){ S.month++; startMonth(); });
+}
+function afterAction(){
+  // year-end bonus in December (month % 12 === 0)
+  if(S.month%12===0&&!S.ownBoss){
+    var bonus=Math.round(S.salary*rnd(0.6,1.6));
+    S.cash+=bonus; S.totalEarned+=bonus;
+    addLog('年终奖 '+fmt(bonus));
+    renderStats();
+    card('年终结算','year','一年到头了','公司发了年终奖 '+fmt(bonus)+'。\n这一年，你的客户数 '+S.clients+'，口碑 '+S.rep+'，存款 '+fmt(S.cash)+'。\n新的一年，继续干。');
+    return continueBtn('迎接新的一年 →',function(){ maybeEventOrNext(); });
+  }
+  maybeEventOrNext();
+}
+function maybeEventOrNext(){
+  var pool=EVENTS.filter(function(e){
+    if(e.once&&S.seen[e.id]) return false;
+    try{ return e.cond(); }catch(err){ return false; }
+  });
+  if(pool.length&&chance(0.72)){
+    var e=pick(pool);
+    S.seen[e.id]=true;
+    renderStats();
+    card('事件','event',e.title,e.text);
+    choices(e.cs.map(function(c){
+      return {t:c.t,sub:c.sub||'',fn:function(){
+        var out=c.fn();
+        var parts=String(out).split('|');
+        var resTxt=parts[0], d=parts[1]||'';
+        addLog(ageStr()+' 事件《'+e.title+'》');
+        renderStats();
+        if(S.energy<=0){ return showSick(null); }
+        if(S.cash<-10000){ return showEnding('broke'); }
+        card('事件结果','event',e.title,resTxt,d);
+        beep(520,0.1,'triangle',0.06);
+        continueBtn('进入下一个月 →',function(){ S.month++; startMonth(); });
+      }};
+    }));
+  }else{
+    S.month++; startMonth();
+  }
+}
+
+/* ============================== endings ============================== */
+function showEnding(force){
+  S.over=true;
+  renderStats();
+  var net=S.cash;
+  var title,emoji,comment;
+  if(force==='broke'||net<-10000){
+    title='跑路结局'; emoji='📉';
+    comment='现金流断了。最后一笔钱交完房租，你拖着行李箱站在城中村门口，手机里还有 37 个未回复的客户。\n外贸这行，死在半路的人，多半不是输给市场，是输给现金流。';
+  }else if(S.sick>=3){
+    title='健康退休结局'; emoji='🏥';
+    comment='五年里你病倒了 '+S.sick+' 次。29 岁生日那天，你决定先把身体养回来。\n钱挣了 '+fmt(Math.max(net,0))+'，但体检报告比银行卡更值得看。人生很长，外贸可以慢慢做。';
+  }else if(net>=2000000){
+    title='外贸大亨'; emoji='👑';
+    comment='五年，'+fmt(net)+'。你从城中村走到了写字楼顶层，客户遍布 30 多个国家。\n当年那个拖着行李箱出深圳北站的年轻人，现在别人叫他一声"总"。';
+  }else if(net>=800000){
+    title='稳健老板'; emoji='🏢';
+    comment=fmt(net)+' 的身家，一批跟了多年的老客户，一间不大的办公室。\n你不算大富大贵，但在这个行业里，你站住了。';
+  }else if(net>=300000){
+    title='金牌业务员'; emoji='🥇';
+    comment='五年攒下 '+fmt(net)+'，客户名单厚厚一叠，行业里提起你的名字，同行都点头。\n再给你五年，老板可能就是你自己。';
+  }else if(net>=0){
+    title='平凡外贸人'; emoji='🧳';
+    comment='五年过去，你攒下了 '+fmt(net)+'。没有暴富，也没有掉队——像深圳千千万万个外贸人一样，认真活着。\n平凡不是失败，能在这个城市留下来，本身就是一种赢。';
+  }else{
+    title='月光外贸人'; emoji='🌙';
+    comment='五年忙忙碌碌，存款却是负的。问题出在哪，你自己心里最清楚。\n好在才 29 岁，牌还没打完。调整打法，再来一局。';
+  }
+  var stats=
+    '<div class="kv"><span>最终现金</span><b>'+fmt(net)+'</b></div>'+
+    '<div class="kv"><span>累计收入</span><b>'+fmt(S.totalEarned)+'</b></div>'+
+    '<div class="kv"><span>成交大单</span><b>'+S.deals+' 笔</b></div>'+
+    '<div class="kv"><span>最大单笔</span><b>'+(S.biggestDeal?fmt(S.biggestDeal):'—')+'</b></div>'+
+    '<div class="kv"><span>最终客户数</span><b>'+S.clients+'</b></div>'+
+    '<div class="kv"><span>口碑 / 经验</span><b>'+S.rep+' / '+S.exp+'</b></div>'+
+    '<div class="kv"><span>病倒次数</span><b>'+S.sick+'</b></div>'+
+    '<div class="kv"><span>身份</span><b>'+(S.ownBoss?'公司创始人':S.job)+'</b></div>';
+  $('stage').innerHTML='<div class="card center"><span class="tag year">结局</span><div class="ending-emoji">'+emoji+'</div><div class="big">'+title+'</div><p style="margin-top:10px;text-align:left">'+comment+'</p><div style="margin-top:14px;text-align:left">'+stats+'</div></div><div class="choices" id="choices"></div>';
+  beep(392,0.15,'triangle',0.07); setTimeout(function(){beep(523,0.15,'triangle',0.07);},160); setTimeout(function(){beep(659,0.3,'triangle',0.07);},330);
+  choices([{t:'🔁 再来一局人生',primary:true,fn:function(){ showStart(); }}]);
+  if(window.__SIM) window.__SIM.ending=title;
+}
+
+/* debug hook for automated playthrough tests */
+window.__SIM={get state(){return S;},ending:null};
+showStart();
+</script>
+</body>
+</html>
