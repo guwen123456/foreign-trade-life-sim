@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>15万买车直观报价 — 落地价一图看懂</title>
+<style>
+:root{
+  --bg:#f4f6f4; --surface:#ffffff; --surface2:#eef2ee; --ink:#16201a; --muted:#5c6a61; --line:#dde3dd;
+  --green:#0e7a5f; --green-bg:#e6f4ee; --amber:#b45309; --amber-bg:#fef3c7; --red:#c2410c; --red-bg:#ffedd5;
+  --blue:#1d4ed8; --shadow:0 1px 3px rgba(20,30,24,.06),0 8px 24px rgba(20,30,24,.05);
+  --radius:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#101412; --surface:#1a201c; --surface2:#232a25; --ink:#e9efea; --muted:#9fb0a4; --line:#2e3831;
+    --green:#34d399; --green-bg:#123128; --amber:#fbbf24; --amber-bg:#33270a; --red:#fb923c; --red-bg:#331d0d;
+    --blue:#93c5fd; --shadow:0 1px 3px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+.num{font-family:"Archivo","Noto Sans SC",sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px 56px}
+a{color:var(--blue)}
+button,[role="button"],select,input,summary{min-height:40px}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+/* ---- top summary ---- */
+.top{padding:28px 0 8px}
+.top h1{font-size:30px;line-height:1.2;margin:0 0 6px;font-weight:900;letter-spacing:-.02em}
+.top .sub{color:var(--muted);font-size:14px;line-height:1.65;margin:0;max-width:720px}
+.top .sub strong{color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0 6px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.kpi .k-label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em}
+.kpi .k-value{font-size:26px;font-weight:800;margin-top:2px}
+.kpi .k-note{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+.kpi.hot .k-value{color:var(--green)}
+@media(max-width:720px){.kpis{grid-template-columns:1fr 1fr}.top h1{font-size:25px}.kpi .k-value{font-size:22px}}
+
+/* ---- budget ruler ---- */
+.ruler{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 14px;margin:14px 0 22px;box-shadow:var(--shadow)}
+.ruler h2{font-size:15px;margin:0 0 4px;font-weight:900}
+.ruler p{font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.6}
+.ruler-track{position:relative;height:34px;background:var(--surface2);border-radius:9px;margin:26px 4px 8px}
+.ruler-fill{position:absolute;left:0;top:0;bottom:0;border-radius:9px;background:linear-gradient(90deg,#0e7a5f,#35a584);width:88.2%}
+.ruler-budget{position:absolute;top:-8px;bottom:-8px;left:88.2%;width:2px;background:var(--red)}
+.ruler-budget span{position:absolute;top:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:12px;font-weight:800;color:var(--red)}
+.ruler-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:0 2px}
+.ruler-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:12px;color:var(--muted)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+
+/* ---- filters ---- */
+.controls{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 10px;margin:0 -4px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:0 4px}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 16px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;min-height:40px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.controls-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;padding:0 4px}
+.controls-row label{font-size:13px;color:var(--muted);font-weight:700}
+.controls-row select{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:8px 10px;font-size:13.5px;font-family:inherit;font-weight:600}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;cursor:pointer;padding:8px 4px;min-height:40px}
+.toggle input{width:20px;height:20px;accent-color:var(--green)}
+.count-line{font-size:13px;color:var(--muted);margin:6px 4px 12px}
+.count-line strong{color:var(--ink)}
+
+/* ---- car cards ---- */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:0}
+.card.over{border-color:#e8b48f}
+.card-head{display:flex;gap:12px;align-items:flex-start}
+.rank{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.card.over .rank{background:var(--red-bg);color:var(--red)}
+.card-title{flex:1;min-width:0}
+.card-title h3{margin:0;font-size:18px;font-weight:900;line-height:1.3}
+.card-title .cfg{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.5}
+.badge{flex:0 0 auto;font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;background:var(--green-bg);color:var(--green);white-space:nowrap}
+.badge.over{background:var(--red-bg);color:var(--red)}
+.badge.near{background:var(--amber-bg);color:var(--amber)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0}
+.tag{font-size:11.5px;font-weight:700;background:var(--surface2);border-radius:6px;padding:4px 8px;color:var(--muted)}
+.tag.warn{color:var(--amber)}
+.price-row{display:flex;align-items:baseline;gap:10px;margin:14px 0 2px;flex-wrap:wrap}
+.price-main{font-size:34px;font-weight:800;line-height:1}
+.price-main small{font-size:14px;font-weight:700;color:var(--muted)}
+.price-after{font-size:13px;color:var(--muted)}
+.price-after strong{color:var(--green);font-size:15px}
+.diff{font-size:13.5px;font-weight:800;margin:4px 0 10px}
+.diff.ok{color:var(--green)} .diff.over{color:var(--red)} .diff.near{color:var(--amber)}
+.bar{position:relative;height:10px;background:var(--surface2);border-radius:99px;margin:6px 0 4px}
+.bar-fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:#159a78}
+.card.over .bar-fill{background:#d96c2c}
+.bar.near-fill .bar-fill{background:#d9a02c}
+.bar-mark{position:absolute;top:-4px;bottom:-4px;left:88.2%;width:2px;background:var(--red);border-radius:2px}
+.bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0 0;padding:12px 0 0;border-top:1px dashed var(--line)}
+@media(max-width:480px){.breakdown{grid-template-columns:1fr 1fr}}
+.bd .bd-l{font-size:11px;color:var(--muted);font-weight:700}
+.bd .bd-v{font-size:14.5px;font-weight:800;margin-top:1px}
+.floor{margin-top:12px;background:var(--surface2);border-radius:12px;padding:12px 14px}
+.floor .f-row{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.floor .f-label{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.03em}
+.floor .f-price{font-size:20px;font-weight:800}
+.floor .f-note{font-size:12px;color:var(--muted);line-height:1.6;margin-top:4px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.65;margin:12px 0 0}
+.note strong{color:var(--ink)}
+.hidden-card{display:none}
+
+/* ---- sections ---- */
+.section{margin-top:34px}
+.section h2{font-size:21px;font-weight:900;margin:0 0 6px;letter-spacing:-.01em}
+.section .lead{font-size:13.5px;color:var(--muted);line-height:1.7;margin:0 0 16px;max-width:760px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+
+/* calculator */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:820px){.calc-grid{grid-template-columns:1fr}}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
+.field .hint{font-size:12px;color:var(--muted);font-weight:400;margin-left:6px}
+.field input,.field select{width:100%;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:16px;font-family:inherit}
+.calc-out{background:var(--surface2);border-radius:14px;padding:16px}
+.calc-out .row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:14px;border-bottom:1px dashed var(--line)}
+.calc-out .row:last-child{border-bottom:none}
+.calc-out .row span:first-child{color:var(--muted);font-weight:600}
+.calc-out .row span:last-child{font-weight:800}
+.calc-out .total{font-size:16px;padding-top:12px}
+.calc-out .total span:last-child{font-size:24px;color:var(--green)}
+.calc-out .total.over span:last-child{color:var(--red)}
+.calc-verdict{margin-top:12px;font-size:14px;font-weight:800;padding:10px 12px;border-radius:10px;background:var(--green-bg);color:var(--green);line-height:1.6}
+.calc-verdict.over{background:var(--red-bg);color:var(--red)}
+
+/* compare */
+.vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:820px){.vs-grid{grid-template-columns:1fr}}
+.vs-card{border:1px solid var(--line);border-radius:var(--radius);padding:18px;background:var(--surface);box-shadow:var(--shadow)}
+.vs-card h3{margin:0 0 4px;font-size:17px;font-weight:900}
+.vs-card .vs-sub{font-size:12.5px;color:var(--muted);margin:0 0 12px;line-height:1.6}
+.vs-card ul{margin:0;padding:0;list-style:none}
+.vs-card li{padding:9px 0;border-top:1px dashed var(--line);font-size:13.5px;line-height:1.65}
+.vs-card li:first-of-type{border-top:none}
+.vs-card li b{display:block;font-size:12px;color:var(--muted);letter-spacing:.03em;margin-bottom:2px}
+.verdict{margin-top:14px;background:var(--green-bg);color:var(--ink);border-radius:var(--radius);padding:16px 18px;font-size:14px;line-height:1.75}
+.verdict strong{color:var(--green)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:820px){.steps{grid-template-columns:1fr}}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.step .n{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;margin-bottom:10px}
+.step h3{margin:0 0 6px;font-size:15px;font-weight:900}
+.step p{margin:0;font-size:13px;color:var(--muted);line-height:1.7}
+.policy{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:820px){.policy{grid-template-columns:1fr}}
+.pol{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.pol h3{margin:0 0 6px;font-size:15px;font-weight:900}
+.pol p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}
+.pol p strong{color:var(--ink)}
+footer{margin-top:36px;font-size:12px;color:var(--muted);line-height:1.8;border-top:1px solid var(--line);padding-top:16px}
+footer a{word-break:break-all}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== 头部结论 ===== -->
+  <header class="top">
+    <h1>15 万落地，能买这 9 款</h1>
+    <p class="sub">预算口径：<strong>落地价 ≤ 15 万元</strong>（裸车 + 购置税 + 车船税 + 保险 + 上牌费，全款）。10 款热门车按落地价从低到高排好，每张卡直接看三个数：<strong>落地价、离 15 万还差多少、砍到底价能到多少</strong>。报价时点 2026 年 11 月 14 日，深圳 / 四川（成都）通用，地区差异在下方单独说明。</p>
+    <div class="kpis">
+      <div class="kpi hot"><div class="k-label">预算内</div><div class="k-value num">9 / 10 款</div><div class="k-note">只有星越 L 超了，做参考</div></div>
+      <div class="kpi"><div class="k-label">最便宜落地</div><div class="k-value num">¥93,765</div><div class="k-note">哈弗 H6 经典版，比预算省 5.6 万</div></div>
+      <div class="kpi"><div class="k-label">刚好卡线</div><div class="k-value num">¥148,012</div><div class="k-note">银河 E5 610km 版，只剩 1,988 元余量</div></div>
+      <div class="kpi"><div class="k-label">置换后再省</div><div class="k-value num">最高 ¥10,864</div><div class="k-note">有旧车置换，新能源按裸车价 8% 后返</div></div>
+    </div>
+  </header>
+
+  <!-- ===== 预算尺 ===== -->
+  <div class="ruler" aria-label="预算尺">
+    <h2>先看这把尺：条越短，离 15 万越远、越安全</h2>
+    <p>每张卡里的横条都用同一把尺（满格 = 17 万），红线就是 15 万预算线。条没碰到红线 = 预算内；越过红线 = 超了。</p>
+    <div class="ruler-track"><div class="ruler-fill"></div><div class="ruler-budget"><span>预算线 15 万</span></div></div>
+    <div class="ruler-scale"><span>0</span><span>5 万</span><span>10 万</span><span>15 万</span><span>17 万</span></div>
+    <div class="ruler-legend">
+      <span><span class="dot" style="background:#159a78"></span>预算内</span>
+      <span><span class="dot" style="background:#d9a02c"></span>贴线（余量 &lt; 6,000 元）</span>
+      <span><span class="dot" style="background:#d96c2c"></span>超预算</span>
+    </div>
+  </div>
+
+  <!-- ===== 筛选 ===== -->
+  <div class="controls">
+    <div class="chips" role="group" aria-label="筛选车型">
+      <button class="chip" data-filter="all" aria-pressed="true">全部 10 款</button>
+      <button class="chip" data-filter="in" aria-pressed="false">✓ 预算内</button>
+      <button class="chip" data-filter="suv" aria-pressed="false">SUV</button>
+      <button class="chip" data-filter="sedan" aria-pressed="false">轿车</button>
+      <button class="chip" data-filter="nev" aria-pressed="false">新能源（绿牌）</button>
+      <button class="chip" data-filter="fuel" aria-pressed="false">燃油 / 油混</button>
+    </div>
+    <div class="controls-row">
+      <label for="sortSel">排序</label>
+      <select id="sortSel">
+        <option value="land">落地价：低 → 高</option>
+        <option value="after">置换后价：低 → 高</option>
+        <option value="floor">底价落地：低 → 高</option>
+        <option value="save">离预算最远（最省）</option>
+      </select>
+      <label class="toggle"><input type="checkbox" id="afterToggle"> 主价显示置换后</label>
+    </div>
+  </div>
+  <p class="count-line" id="countLine"></p>
+
+  <!-- ===== 车卡 ===== -->
+  <div class="grid" id="carGrid"></div>
+
+  <!-- ===== 计算器 ===== -->
+  <section class="section" id="calc">
+    <h2>落地价计算器 — 销售报多少，自己算</h2>
+    <p class="lead">在店里看任何一款车，把销售报的<strong>裸车价</strong>填进来，落地价和补贴后价立刻出来。2026 年口径：新能源购置税减半（÷1.13 × 5%），燃油 / 油混全额（÷1.13 × 10%）；交强险 950 元；商业险默认按裸车价 3.5% 估算。</p>
+    <div class="panel">
+      <div class="calc-grid">
+        <div>
+          <div class="field"><label for="cBare">裸车价（元）<span class="hint">已扣优惠后的价格</span></label><input id="cBare" type="number" inputmode="numeric" value="129900" min="0" step="100"></div>
+          <div class="field"><label for="cPower">动力类型</label><select id="cPower"><option value="nev" selected>新能源（纯电 / 插混 / 增程）</option><option value="fuel">燃油 / 油混 HEV</option></select></div>
+          <div class="field"><label for="cTax">车船税（元/年）<span class="hint">新能源 0；燃油 1.5T 约 300、2.0T 约 420</span></label><input id="cTax" type="number" inputmode="numeric" value="0" min="0" step="10"></div>
+          <div class="field"><label for="cIns">商业险费率<span class="hint">默认 3.5%</span></label><select id="cIns"><option value="0.03">3.0%</option><option value="0.035" selected>3.5%</option><option value="0.04">4.0%</option></select></div>
+          <div class="field"><label for="cPlate">上牌费（元）<span class="hint">代办口径，自己办更低</span></label><input id="cPlate" type="number" inputmode="numeric" value="500" min="0" step="50"></div>
+          <div class="field"><label for="cSub">以旧换新补贴</label><select id="cSub"><option value="none">无旧车</option><option value="trade" selected>置换更新（新能源 8% / 燃油 6%）</option><option value="scrap">报废更新（新能源 12% / 燃油 10%）</option></select></div>
+        </div>
+        <div>
+          <div class="calc-out" aria-live="polite">
+            <div class="row"><span>裸车价</span><span class="num" id="oBare">—</span></div>
+            <div class="row"><span>购置税</span><span class="num" id="oTax">—</span></div>
+            <div class="row"><span>车船税</span><span class="num" id="oVt">—</span></div>
+            <div class="row"><span>交强险</span><span class="num">¥950</span></div>
+            <div class="row"><span>商业险（估算）</span><span class="num" id="oIns">—</span></div>
+            <div class="row"><span>上牌费</span><span class="num" id="oPlate">—</span></div>
+            <div class="row total" id="oTotalRow"><span>落地价（提车现金）</span><span class="num" id="oTotal">—</span></div>
+            <div class="row"><span>补贴（购后返还）</span><span class="num" id="oSub">—</span></div>
+            <div class="row"><span>补贴后实际落地</span><span class="num" id="oAfter">—</span></div>
+          </div>
+          <div class="calc-verdict" id="oVerdict"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 深圳 vs 四川 ===== -->
+  <section class="section">
+    <h2>深圳买还是四川买？差在哪一眼看清</h2>
+    <p class="lead">指导价和厂家限时价全国统一，购置税规则也一样。两地真正的差别只有两条：<strong>深圳燃油车要指标，四川不用</strong>；经销商优惠各谈各的。</p>
+    <div class="vs-grid">
+      <div class="vs-card">
+        <h3>深圳</h3>
+        <p class="vs-sub">新能源最省事的一座城</p>
+        <ul>
+          <li><b>牌照</b>新能源绿牌直接申领上牌；燃油车需粤B指标（摇号 / 竞价），指标成本另计，没算进上面的落地价。</li>
+          <li><b>适合买</b>秦 PLUS / 秦 L / 海狮 06 / 银河 E5 / 零跑 C10 / 深蓝 S05 — 全部绿牌，不用等指标。</li>
+          <li><b>燃油车提醒</b>H6、博越 L、星越 L、CS75 PLUS 油混在深圳都要先解决指标，没指标先别交定金。</li>
+          <li><b>用车</b>绿牌不限行，充电网络密，插混 / 纯电通勤成本最低。</li>
+        </ul>
+      </div>
+      <div class="vs-card">
+        <h3>四川（成都）</h3>
+        <p class="vs-sub">燃油、新能源都能直接买</p>
+        <ul>
+          <li><b>牌照</b>新能源绿牌直接上牌；燃油车也可直接上牌，没有指标门槛、没有指标成本。</li>
+          <li><b>适合买</b>10 款全都能买。本页落地价是按全国公开限时价测算的，两地通用，不是四川实报 — 四川的经销商优惠拿到后，用上方计算器按裸车价重算再比。</li>
+          <li><b>用车提醒</b>冬天温度低，纯电续航打折更明显；经常跑长途、回老家，优先秦 L、海狮 06 这类长续航插混。</li>
+          <li><b>补贴</b>与深圳同为 2026 国标，但发票开具地和上牌地必须在同一个省 — 在哪上牌就在哪买。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="verdict"><strong>一句话结论：</strong>车在深圳用 → 首选新能源，免指标 + 购置税减半；在四川用 → 燃油和新能源都行，这批燃油款落地价更低，但长期油费高于插混。比价只比一个数：<strong>同配置的裸车价</strong>，两地各问 2–3 家店，差额超过跨城的运费和时间才值得异地买。</div>
+  </section>
+
+  <!-- ===== 砍价 ===== -->
+  <section class="section">
+    <h2>到店砍价：就按这三步</h2>
+    <p class="lead">每张卡下方的「目标底价」是谈判目标（比亚迪控价严按再砍 2%，其余 3%–5%），不是成交承诺。顺序别乱：</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>先锁裸车价</h3><p>先报卡上的目标裸车价谈，别先聊赠品和补贴。置换补贴等裸车价定死之后再谈，防止销售把补贴算进优惠里重复计价。</p></div>
+      <div class="step"><div class="n">2</div><h3>再谈赠品和保养</h3><p>现金砍不动的品牌（尤其比亚迪）就转攻赠品：保养次数、充电桩、贴膜脚垫、金融贴息，逐项要，写进清单。</p></div>
+      <div class="step"><div class="n">3</div><h3>最后压保险和上牌费</h3><p>保险可以自己上、上牌可以自己办（代办 500 元可谈可免）。所有口头承诺写进购车合同，再交定金。库存车先验生产日期，可再压一档。</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 政策 ===== -->
+  <section class="section">
+    <h2>2026 年买车，三个政策数先记住</h2>
+    <div class="policy">
+      <div class="pol"><h3>购置税：新能源减半，不是全免</h3><p>2026–2027 年新能源购置税<strong>减半按 5% 征</strong>，单车减税封顶 1.5 万（本页车型都没触顶）。一辆裸车 12 万的新能源，购置税约 <strong>5,310 元</strong>；同价位燃油车按 10% 交，约 10,619 元 — 光税就差 5 千多。</p></div>
+      <div class="pol"><h3>以旧换新：补贴是购后返还</h3><p>置换更新：新能源按新车价 <strong>8%、最高 1.5 万</strong>；燃油 6%、最高 1.3 万。报废更新更高：新能源 12%、最高 2 万。补贴<strong>不抵提车现金</strong>，提车时仍按落地价全额准备，补贴之后返到账。</p></div>
+      <div class="pol"><h3>保险和上牌：估算口径</h3><p>交强险 950 元（家用 6 座以下）；商业险按裸车价 3.5% 估算（首年常见 3%–4%），以保险公司报价为准；上牌代办按 500 元估算，自己办更低。这三项每家店报价不同，是最后砍价的空间。</p></div>
+      <div class="pol"><h3>标「测算」的三款，到店先核价</h3><p>秦 L、零跑 C10 的推荐配置价取自指导价区间中档，深蓝 S05 取全系起售价 — 这三款先让销售报出<strong>确切配置名和指导价</strong>，再套用本页公式谈优惠，别拿测算价直接下单。</p></div>
+    </div>
+  </section>
+
+  <footer>
+    数据来源（2026-11-14 检索）：厂家指导价与限时价取自汽车之家、新浪汽车等公开报道；购置税口径见 <a href="https://www.calcton.com/car-landing-price">calcton 落地价构成</a>；以旧换新国标见 <a href="http://auto.hexun.com/2026-02-16/223498229.html">商务部等 8 部门 2026 年细则（和讯转述）</a>。终端优惠每天在变：本页只计入厂家公开的限时价 / 一口价，经销商额外优惠未预设 — 拿到报价后用上方计算器按裸车价重算即可。完整明细（含每款砍价筹码）见配套表格《15万预算买车报价单》。
+  </footer>
+</div>
+
+<script>
+var CARS = [
+ {name:"哈弗 H6", cfg:"2026款 1.5T 经典版", power:"燃油", powerKey:"fuel", level:"紧凑型SUV", type:"suv",
+  guide:99900, pub:18000, bare:81900, tax:7248, vt:300, ins:2867, land:93765, sub:4914, after:88851,
+  cut:"再砍 5%", floorBare:77805, floorLand:89163, floorAfter:84495,
+  note:"全场门槛最低：限时价 8.19 万，落地不到 9.4 万。1.5T + 7DCT 成熟耐用，WLTC 油耗 7.13L。库存压力大，验生产日期后还能再压。",
+  chip:"限时价已减 1.8 万", szWarn:true},
+ {name:"吉利 博越L", cfg:"第四代 1.5T 入门版", power:"燃油", powerKey:"fuel", level:"紧凑型SUV", type:"suv",
+  guide:99900, pub:7000, bare:92900, tax:8221, vt:300, ins:3252, land:106123, sub:5574, after:100549,
+  cut:"再砍 5%", floorBare:88255, floorLand:100904, floorAfter:95609,
+  note:"限时价 9.29 万起，落地约 10.6 万。拿它和 H6、CS75 PLUS 三方互相压价，效果最好。入门版配置够用即可，别被选装包抬价。",
+  chip:"限时价已减 0.7 万", szWarn:true},
+ {name:"比亚迪 秦PLUS DM-i", cfg:"2026款 210km 超越型", power:"插混", powerKey:"nev", level:"紧凑型轿车", type:"sedan",
+  guide:99800, pub:0, bare:99800, tax:4416, vt:0, ins:3493, land:109159, sub:7984, after:101175,
+  cut:"再砍 2%", floorBare:97804, floorLand:107005, floorAfter:99181,
+  note:"全系顶配才 9.98 万，落地约 10.9 万，预算最宽松的一款。亏电油耗 2.79L，带天神之眼 C。比亚迪控价严，现金难砍，主攻赠品和保养。",
+  chip:"顶配即此价", szWarn:false},
+ {name:"长安 CS75 PLUS", cfg:"蓝鲸超擎版 真香型（一口价）", power:"油混", powerKey:"fuel", level:"紧凑型SUV", type:"suv",
+  guide:121900, pub:12000, bare:109900, tax:9726, vt:300, ins:3847, land:125223, sub:6594, after:118629,
+  cut:"再砍 3%", floorBare:106603, floorLand:121518, floorAfter:115122,
+  note:"油混 WLTC 油耗 4.69L、37 英寸三联屏。一口价 10.99 万为限量配置，先确认有车。注意：油混不能上绿牌，深圳买需燃油指标。",
+  chip:"一口价已减 1.2 万", szWarn:true},
+ {name:"比亚迪 秦L DM-i", cfg:"128km 版 中配（测算）", power:"插混", powerKey:"nev", level:"中型轿车", type:"sedan",
+  guide:119800, pub:0, bare:119800, tax:5301, vt:0, ins:4193, land:130744, sub:9584, after:121160,
+  cut:"再砍 2%", floorBare:117404, floorLand:128158, floorAfter:118766,
+  note:"B 级尺寸（车长超 4.8 米）、第五代 DM、综合续航 2100km+。可拿海豹 06 DM-i 同价做比价筹码，两网互相压。测算价到店先核准配置。",
+  chip:"测算价 · 到店核准", szWarn:false},
+ {name:"深蓝 S05", cfg:"增程版 入门（起售价）", power:"增程/纯电", powerKey:"nev", level:"紧凑型SUV", type:"suv",
+  guide:119900, pub:0, bare:119900, tax:5305, vt:0, ins:4197, land:130852, sub:9592, after:121260,
+  cut:"再砍 4%", floorBare:115104, floorLand:125676, floorAfter:116468,
+  note:"增程版纯电续航 215km、综合续航 1310km。长安系终端弹性大，以 CS75 PLUS 一口价和零跑 C10 做锚点压价。11.99 万为起售价，看中配先核价。",
+  chip:"起售价 · 到店核准", szWarn:false},
+ {name:"比亚迪 海狮06 DM-i", cfg:"2026款 205 领航版", power:"插混", powerKey:"nev", level:"中型SUV", type:"suv",
+  guide:129900, pub:0, bare:129900, tax:5748, vt:0, ins:4547, land:141645, sub:10392, after:131253,
+  cut:"再砍 2%", floorBare:127302, floorLand:138841, floorAfter:128657,
+  note:"全系标配云辇-C 和 L2 智驾、8 气囊，纯电续航 205km。有旧车务必走置换（官方口径置换价更低）。别被推到领航 Pro：贵 1 万，落地破 15 万。",
+  chip:"SUV 里配置最全", szWarn:false},
+ {name:"零跑 C10", cfg:"2026款 中配（测算）", power:"增程/纯电", powerKey:"nev", level:"中型SUV", type:"suv",
+  guide:132800, pub:0, bare:132800, tax:5876, vt:0, ins:4648, land:144774, sub:10624, after:134150,
+  cut:"再砍 4%", floorBare:127488, floorLand:139041, floorAfter:128842,
+  note:"轴距 2825mm 空间大，增程 / 纯电双路线。零跑议价弹性比比亚迪大，4% 是合理开局；先定增程还是纯电，两个版本价格体系不同。",
+  chip:"测算价 · 到店核准", szWarn:false},
+ {name:"吉利银河 E5", cfg:"2026款 610km 探索+版", power:"纯电", powerKey:"nev", level:"紧凑型SUV", type:"suv",
+  guide:135800, pub:0, bare:135800, tax:6009, vt:0, ins:4753, land:148012, sub:10864, after:137148,
+  cut:"再砍 3%", floorBare:131726, floorLand:143615, floorAfter:133077,
+  note:"610km 续航 + Flyme Auto 车机，适合有家充、城市通勤为主。落地只剩 1,988 元余量，任何加装都会破线 — 谈价时守住裸车价。顶配星舰版落地约 15.9 万，超预算。",
+  chip:"贴线 · 余量最小", szWarn:false},
+ {name:"吉利 星越L", cfg:"东方曜 2.0TD 霄汉版", power:"燃油", powerKey:"fuel", level:"紧凑型SUV", type:"suv",
+  guide:158700, pub:13000, bare:145700, tax:12894, vt:420, ins:5100, land:165564, sub:8742, after:156822,
+  cut:"再砍 5%", floorBare:138415, floorLand:157379, floorAfter:149074,
+  note:"质感最好的一款：2.0T 高功 + 爱信 8AT。但按提车现金口径始终超线：限时价落地约 16.56 万，打到目标底价也要先备 15.74 万现金；置换补贴返还后实际花费才降到 14.91 万，而补贴不抵提车现金 — 预算卡死 15 万现金就别选它。",
+  chip:"超预算参考", szWarn:true}
+];
+var BUDGET = 150000, SCALE = 170000;
+function fmt(n){ return "¥" + Math.round(n).toLocaleString("zh-CN"); }
+function wan(n){ return (n/10000).toFixed(2).replace(/\.?0+$/,"") + " 万"; }
+var grid = document.getElementById("carGrid");
+var showAfter = false;
+
+function statusOf(c){
+  if (c.land > BUDGET) return "over";
+  if (BUDGET - c.land < 6000) return "near";
+  return "ok";
+}
+function render(){
+  var sortKey = document.getElementById("sortSel").value;
+  var sorted = CARS.slice().sort(function(a,b){
+    if (sortKey==="after") return a.after-b.after;
+    if (sortKey==="floor") return a.floorLand-b.floorLand;
+    if (sortKey==="save") return a.land-b.land;
+    return a.land-b.land;
+  });
+  grid.innerHTML = "";
+  sorted.forEach(function(c, i){
+    var st = statusOf(c);
+    var mainPrice = showAfter ? c.after : c.land;
+    var mainLabel = showAfter ? "置换后落地价" : "落地价";
+    var diff = BUDGET - c.land;
+    var pct = Math.min(mainPrice/SCALE*100, 100);
+    var card = document.createElement("article");
+    card.className = "card" + (st==="over" ? " over" : "");
+    card.dataset.type = c.type; card.dataset.power = c.powerKey; card.dataset.status = st;
+    var badge = st==="over" ? '<span class="badge over">✗ 超预算</span>' : (st==="near" ? '<span class="badge near">⚠ 贴线</span>' : '<span class="badge">✓ 预算内</span>');
+    var diffHtml = st==="over"
+      ? '<div class="diff over">超预算 ' + fmt(-diff) + ' — 加预算或等更大优惠才够</div>'
+      : '<div class="diff ' + st + '">离 15 万还差 ' + fmt(diff) + (st==="near" ? '，别加装选装包' : '') + '</div>';
+    card.innerHTML =
+      '<div class="card-head"><div class="rank num">' + (i+1) + '</div>' +
+      '<div class="card-title"><h3>' + c.name + '</h3><div class="cfg">' + c.cfg + '</div></div>' + badge + '</div>' +
+      '<div class="tags"><span class="tag">' + c.power + '</span><span class="tag">' + c.level + '</span><span class="tag">' + c.chip + '</span>' +
+      (c.szWarn ? '<span class="tag warn">深圳需燃油指标</span>' : '<span class="tag">深圳绿牌直上</span>') + '</div>' +
+      '<div class="price-row"><div class="price-main num">' + fmt(mainPrice) + '</div><div class="price-after">' + mainLabel + (showAfter ? '' : ' · 置换后 <strong class="num">' + fmt(c.after) + '</strong>') + '</div></div>' +
+      diffHtml +
+      '<div class="bar' + (st==="near" ? " near-fill" : "") + '"><div class="bar-fill" style="width:' + pct + '%"></div><div class="bar-mark"></div></div>' +
+      '<div class="bar-labels"><span>0</span><span>红线 = 15 万</span><span>17 万</span></div>' +
+      '<div class="breakdown">' +
+        '<div class="bd"><div class="bd-l">裸车价</div><div class="bd-v num">' + fmt(c.bare) + '</div></div>' +
+        '<div class="bd"><div class="bd-l">购置税</div><div class="bd-v num">' + fmt(c.tax) + '</div></div>' +
+        '<div class="bd"><div class="bd-l">保险+上牌+车船税</div><div class="bd-v num">' + fmt(c.ins + 950 + 500 + c.vt) + '</div></div>' +
+        '<div class="bd"><div class="bd-l">指导价</div><div class="bd-v num">' + fmt(c.guide) + '</div></div>' +
+      '</div>' +
+      '<div class="floor"><div class="f-row"><span class="f-label">目标底价 · ' + c.cut + '</span><span class="f-price num">' + fmt(c.floorLand) + ' 落地</span></div>' +
+      '<div class="f-note">目标裸车价 ' + fmt(c.floorBare) + ' · 打到底价 + 置换补贴后 ' + fmt(c.floorAfter) + '</div></div>' +
+      '<p class="note">' + c.note + '</p>';
+    grid.appendChild(card);
+  });
+  applyFilter(currentFilter);
+}
+var currentFilter = "all";
+function applyFilter(f){
+  currentFilter = f;
+  var n = 0;
+  var cards = grid.querySelectorAll(".card");
+  cards.forEach(function(card){
+    var show = true;
+    if (f==="in") show = card.dataset.status !== "over";
+    else if (f==="suv") show = card.dataset.type==="suv";
+    else if (f==="sedan") show = card.dataset.type==="sedan";
+    else if (f==="nev") show = card.dataset.power==="nev";
+    else if (f==="fuel") show = card.dataset.power==="fuel";
+    card.classList.toggle("hidden-card", !show);
+    if (show) n++;
+  });
+  document.getElementById("countLine").innerHTML = "当前显示 <strong>" + n + " 款</strong>，按落地价从低到高。价格为全款口径、经销商优惠未预设，到店报价不同请用下方计算器重算。";
+}
+document.querySelectorAll(".chip").forEach(function(chip){
+  chip.addEventListener("click", function(){
+    document.querySelectorAll(".chip").forEach(function(x){ x.setAttribute("aria-pressed","false"); });
+    chip.setAttribute("aria-pressed","true");
+    applyFilter(chip.dataset.filter);
+  });
+});
+document.getElementById("sortSel").addEventListener("change", render);
+document.getElementById("afterToggle").addEventListener("change", function(e){ showAfter = e.target.checked; render(); });
+render();
+
+/* ---- calculator ---- */
+function calc(){
+  var bare = parseFloat(document.getElementById("cBare").value) || 0;
+  var fuel = document.getElementById("cPower").value === "fuel";
+  var vt = parseFloat(document.getElementById("cTax").value) || 0;
+  var insRate = parseFloat(document.getElementById("cIns").value);
+  var plate = parseFloat(document.getElementById("cPlate").value) || 0;
+  var subMode = document.getElementById("cSub").value;
+  var tax = Math.round(bare/1.13 * (fuel ? 0.10 : 0.05));
+  var ins = Math.round(bare * insRate);
+  var total = bare + tax + vt + 950 + ins + plate;
+  var sub = 0;
+  if (subMode==="trade") sub = Math.min(Math.round(bare * (fuel ? 0.06 : 0.08)), fuel ? 13000 : 15000);
+  if (subMode==="scrap") sub = Math.min(Math.round(bare * (fuel ? 0.10 : 0.12)), fuel ? 15000 : 20000);
+  document.getElementById("oBare").textContent = fmt(bare);
+  document.getElementById("oTax").textContent = fmt(tax);
+  document.getElementById("oVt").textContent = fmt(vt);
+  document.getElementById("oIns").textContent = fmt(ins);
+  document.getElementById("oPlate").textContent = fmt(plate);
+  document.getElementById("oTotal").textContent = fmt(total);
+  document.getElementById("oSub").textContent = sub ? "− " + fmt(sub) : "¥0";
+  document.getElementById("oAfter").textContent = fmt(total - sub);
+  var row = document.getElementById("oTotalRow");
+  var verdict = document.getElementById("oVerdict");
+  if (total <= BUDGET){
+    row.classList.remove("over");
+    verdict.className = "calc-verdict";
+    verdict.textContent = "✓ 在预算内：落地 " + fmt(total) + "，离 15 万还差 " + fmt(BUDGET - total) + (sub ? "；补贴到账后实际花 " + fmt(total - sub) + "。" : "。");
+  } else {
+    row.classList.add("over");
+    verdict.className = "calc-verdict over";
+    verdict.textContent = "✗ 超预算 " + fmt(total - BUDGET) + "：让销售把裸车价再降，或换低一档配置再算。" + (sub ? "注意补贴是购后返还，不能抵提车现金。" : "");
+  }
+}
+["cBare","cPower","cTax","cIns","cPlate","cSub"].forEach(function(id){
+  document.getElementById(id).addEventListener("input", calc);
+  document.getElementById(id).addEventListener("change", calc);
+});
+calc();
+</script>
+</body>
+</html>
