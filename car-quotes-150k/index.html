@@ -20,8 +20,8 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
-.num{font-family:"Archivo","Noto Sans SC",sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+.num{font-family:system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif,system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .wrap{max-width:1120px;margin:0 auto;padding:0 16px 56px}
 a{color:var(--blue)}
 button,[role="button"],select,input,summary{min-height:40px}
@@ -107,6 +107,15 @@ button,[role="button"],select,input,summary{min-height:40px}
 .note{font-size:12.5px;color:var(--muted);line-height:1.65;margin:12px 0 0}
 .note strong{color:var(--ink)}
 .hidden-card{display:none}
+
+/* ---- 23-25万档 ---- */
+.tier-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.tier-chip{font-size:12px;font-weight:800;background:var(--ink);color:var(--bg);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.bar25 .bar-mark{left:83.33%}
+.diff-net{font-size:13px;font-weight:700;color:var(--muted);margin:-6px 0 10px}
+.diff-net strong{color:var(--green)}
+.diff-net strong.over{color:var(--red)}
+.net-floor .f-price{color:var(--green)}
 
 /* ---- sections ---- */
 .section{margin-top:34px}
@@ -215,6 +224,77 @@ footer a{word-break:break-all}
 
   <!-- ===== 车卡 ===== -->
   <div class="grid" id="carGrid"></div>
+
+  <!-- ===== 23–25万档 ===== -->
+  <section class="section" id="tier25">
+    <div class="tier-head"><h2 style="margin:0">23–25 万档：唐 DM-i、问界 M7、智界 R7</h2><span class="tier-chip">按 25 万档比</span></div>
+    <p class="lead">表弟的新预算档，三款都是 20 多万的新能源大车。每张卡同时给两个数：<strong>落地价</strong>（提车时要准备的现金）和<strong>报废后净价</strong>（报废补贴到账后的实际花费）。先把口径说清：<strong>报废补贴是购后返还、不抵提车现金</strong>，提车时仍按落地价全额准备；补贴需有旧车可报废，报废买新能源按新车价 <strong>12%、最高 2 万元</strong> — 三款裸车价都超过 16.7 万，所以都顶格拿满 2 万。购置税按 2026 年新能源减半计（裸车价 ÷ 1.13 × 5%）。没有旧车可报废，就只看落地价：唐在档内，M7 和 R7 落地 27.1 万、超档约 2.1 万。</p>
+    <div class="ruler" aria-label="25万档预算尺" style="margin-top:0">
+      <h2>这档的尺：满格 = 30 万，红线 = 25 万</h2>
+      <p>横条按落地价画。唐的条没碰红线；M7、R7 的条越过红线，靠报废补贴返还后才回到线边。</p>
+      <div class="ruler-track"><div class="ruler-fill" style="width:83.33%"></div><div class="ruler-budget" style="left:83.33%"><span>预算线 25 万</span></div></div>
+      <div class="ruler-scale"><span>0</span><span>10 万</span><span>20 万</span><span>25 万</span><span>30 万</span></div>
+    </div>
+    <div class="grid">
+      <article class="card">
+        <div class="card-head"><div class="rank num">1</div>
+          <div class="card-title"><h3>比亚迪 唐 DM-i</h3><div class="cfg">顶配（测算）· 7 座</div></div><span class="badge">✓ 25 万内</span></div>
+        <div class="tags"><span class="tag">插混</span><span class="tag">中大型SUV · 7座</span><span class="tag">测算价 · 到店核准</span><span class="tag">深圳绿牌直上</span></div>
+        <div class="price-row"><div class="price-main num">¥238,669</div><div class="price-after">落地价（提车现金）· 报废后净价 <strong class="num">¥218,669</strong></div></div>
+        <div class="diff ok">落地离 25 万还差 ¥11,331 — 三款里唯一落地就在档内的</div>
+        <div class="diff-net">报废补贴到账后净价 <strong>¥218,669</strong>，离 25 万差 ¥31,331</div>
+        <div class="bar bar25"><div class="bar-fill" style="width:79.56%"></div><div class="bar-mark"></div></div>
+        <div class="bar-labels"><span>0</span><span>红线 = 25 万</span><span>30 万</span></div>
+        <div class="breakdown">
+          <div class="bd"><div class="bd-l">裸车价</div><div class="bd-v num">¥219,800</div></div>
+          <div class="bd"><div class="bd-l">购置税（减半 5%）</div><div class="bd-v num">¥9,726</div></div>
+          <div class="bd"><div class="bd-l">保险+上牌</div><div class="bd-v num">¥9,143</div></div>
+          <div class="bd"><div class="bd-l">报废补贴</div><div class="bd-v num">−¥20,000</div></div>
+        </div>
+        <div class="floor net-floor"><div class="f-row"><span class="f-label">报废后净价 · 补贴 ¥20,000 购后返还</span><span class="f-price num">¥218,669</span></div>
+        <div class="f-note">提车先按落地价 ¥238,669 全额准备，补贴到账后实际花费降到净价。指导价 ¥219,800，顶配为测算价。</div></div>
+        <p class="note">7 座中大型插混，DM-i 口碑好、保有量大，后期维修保养和二手都方便。短板说清：<strong>第三排是应急座，成年人长途难受</strong> — 经常满载 7 人跑长途就别选它，偶尔应急没问题。</p>
+      </article>
+      <article class="card over">
+        <div class="card-head"><div class="rank num">2</div>
+          <div class="card-title"><h3>问界 M7</h3><div class="cfg">2025款 五座入门版</div></div><span class="badge near">⚠ 净价贴线</span></div>
+        <div class="tags"><span class="tag">增程</span><span class="tag">中大型SUV</span><span class="tag">华为乾崑智驾</span><span class="tag">深圳绿牌直上</span></div>
+        <div class="price-row"><div class="price-main num">¥271,046</div><div class="price-after">落地价（提车现金）· 报废后净价 <strong class="num">¥251,046</strong></div></div>
+        <div class="diff over">落地超 25 万 ¥21,046 — 提车现金要按 27.1 万准备</div>
+        <div class="diff-net">报废补贴到账后净价 <strong class="over">¥251,046</strong>，仍超线 ¥1,046，等于卡在 25 万边上</div>
+        <div class="bar bar25"><div class="bar-fill" style="width:90.35%"></div><div class="bar-mark"></div></div>
+        <div class="bar-labels"><span>0</span><span>红线 = 25 万</span><span>30 万</span></div>
+        <div class="breakdown">
+          <div class="bd"><div class="bd-l">裸车价</div><div class="bd-v num">¥249,800</div></div>
+          <div class="bd"><div class="bd-l">购置税（减半 5%）</div><div class="bd-v num">¥11,053</div></div>
+          <div class="bd"><div class="bd-l">保险+上牌</div><div class="bd-v num">¥10,193</div></div>
+          <div class="bd"><div class="bd-l">报废补贴</div><div class="bd-v num">−¥20,000</div></div>
+        </div>
+        <div class="floor net-floor"><div class="f-row"><span class="f-label">报废后净价 · 补贴 ¥20,000 购后返还</span><span class="f-price num">¥251,046</span></div>
+        <div class="f-note">提车先按落地价 ¥271,046 全额准备，补贴不抵提车现金。指导价 ¥249,800。</div></div>
+        <p class="note">华为乾崑智驾 + 鸿蒙座舱，增程无里程焦虑，五座 / 六座可选。注意：<strong>入门版是 ADS 基础版，高阶智驾需选装或上高配</strong> — 冲着高阶智驾买，先问清选装价，选装后落地还会再涨。</p>
+      </article>
+      <article class="card over">
+        <div class="card-head"><div class="rank num">3</div>
+          <div class="card-title"><h3>智界 R7</h3><div class="cfg">增程入门版（测算）</div></div><span class="badge near">⚠ 净价贴线</span></div>
+        <div class="tags"><span class="tag">增程</span><span class="tag">轿跑SUV</span><span class="tag">测算价 · 到店核准</span><span class="tag">深圳绿牌直上</span></div>
+        <div class="price-row"><div class="price-main num">¥271,046</div><div class="price-after">落地价（提车现金）· 报废后净价 <strong class="num">¥251,046</strong></div></div>
+        <div class="diff over">落地超 25 万 ¥21,046 — 提车现金要按 27.1 万准备</div>
+        <div class="diff-net">报废补贴到账后净价 <strong class="over">¥251,046</strong>，仍超线 ¥1,046，等于卡在 25 万边上</div>
+        <div class="bar bar25"><div class="bar-fill" style="width:90.35%"></div><div class="bar-mark"></div></div>
+        <div class="bar-labels"><span>0</span><span>红线 = 25 万</span><span>30 万</span></div>
+        <div class="breakdown">
+          <div class="bd"><div class="bd-l">裸车价</div><div class="bd-v num">¥249,800</div></div>
+          <div class="bd"><div class="bd-l">购置税（减半 5%）</div><div class="bd-v num">¥11,053</div></div>
+          <div class="bd"><div class="bd-l">保险+上牌</div><div class="bd-v num">¥10,193</div></div>
+          <div class="bd"><div class="bd-l">报废补贴</div><div class="bd-v num">−¥20,000</div></div>
+        </div>
+        <div class="floor net-floor"><div class="f-row"><span class="f-label">报废后净价 · 补贴 ¥20,000 购后返还</span><span class="f-price num">¥251,046</span></div>
+        <div class="f-note">提车先按落地价 ¥271,046 全额准备，补贴不抵提车现金。指导价 ¥249,800，增程入门版为测算价。</div></div>
+        <p class="note">华为 ADS 智驾 + 鸿蒙座舱，纯电 / 增程双路线，轿跑 SUV 造型，三款里最年轻运动。注意：<strong>入门版为 ADS 基础版，高阶智驾需选装</strong>，选装价先问清再比。和 M7 同价同净价，差别就在造型、空间和五座 / 六座需求。</p>
+      </article>
+    </div>
+  </section>
 
   <!-- ===== 计算器 ===== -->
   <section class="section" id="calc">
