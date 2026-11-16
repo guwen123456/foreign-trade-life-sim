@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Claude 商城</title>
+<style>
+button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem;}
+</style>
+<style>
+:root{
+--bg:#f7f1e7;
+--bg-deep:#efe5d3;
+--surface:#fffdf8;
+--surface-2:#f4ecdc;
+--ink:#211a12;
+--ink-2:#5c5142;
+--ink-3:#93846c;
+--line:#e2d5bd;
+--accent:#c2512c;
+--accent-deep:#9c3d1e;
+--accent-soft:#f9e4d6;
+--accent-glow:rgba(194,81,44,.14);
+--green:#2e7a4b;
+--green-soft:#e0efe1;
+--amber:#8f6208;
+--amber-soft:#f7ecd0;
+--radius:18px;
+--shadow-sm:0 1px 2px rgba(33,26,18,.05);
+--shadow:0 2px 4px rgba(33,26,18,.05),0 16px 36px -14px rgba(33,26,18,.16);
+--shadow-lg:0 4px 8px rgba(33,26,18,.06),0 28px 56px -18px rgba(120,58,28,.28);
+--serif:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC",serif;
+}
+@media (prefers-color-scheme: dark){
+:root{
+--bg:#171310;
+--bg-deep:#100d0a;
+--surface:#221c16;
+--surface-2:#2b2318;
+--ink:#f2ead9;
+--ink-2:#bcb09a;
+--ink-3:#8f8271;
+--line:#3a3126;
+--accent:#e07a4f;
+--accent-deep:#f0956b;
+--accent-soft:#3c2517;
+--accent-glow:rgba(224,122,79,.16);
+--green:#6fbf8a;
+--green-soft:#1e3325;
+--amber:#e0b45c;
+--amber-soft:#38300f;
+--shadow-sm:0 1px 2px rgba(0,0,0,.3);
+--shadow:0 2px 4px rgba(0,0,0,.3),0 16px 36px -14px rgba(0,0,0,.5);
+--shadow-lg:0 4px 8px rgba(0,0,0,.35),0 28px 56px -18px rgba(0,0,0,.6);
+}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-bottom:110px}
+body{
+margin:0;
+background:var(--bg);
+color:var(--ink);
+font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+line-height:1.6;
+-webkit-font-smoothing:antialiased;
+overflow-x:hidden;
+}
+a{color:var(--accent-deep)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px 96px;position:relative}
+
+/* ---------- Decorative backdrop ---------- */
+.backdrop{position:absolute;inset:0 0 auto 0;height:640px;overflow:hidden;pointer-events:none;z-index:0}
+.backdrop::before{
+content:"";position:absolute;inset:0;
+background:
+radial-gradient(560px 340px at 82% -40px,var(--accent-glow),transparent 70%),
+radial-gradient(420px 300px at 4% 60px,rgba(160,120,60,.10),transparent 70%);
+}
+.backdrop .dots{
+position:absolute;top:26px;right:-30px;width:340px;height:340px;opacity:.5;
+background-image:radial-gradient(var(--line) 1.6px,transparent 1.7px);
+background-size:22px 22px;
+-webkit-mask-image:radial-gradient(circle at 60% 40%,#000 30%,transparent 72%);
+mask-image:radial-gradient(circle at 60% 40%,#000 30%,transparent 72%);
+}
+.backdrop .burst{position:absolute;top:118px;right:6%;color:var(--accent);opacity:.16;transform:rotate(14deg)}
+main{position:relative;z-index:1}
+
+/* ---------- Hero ---------- */
+.hero{padding:52px 0 10px;display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:center}
+@media (max-width:860px){.hero{grid-template-columns:1fr;gap:30px;padding-top:36px}}
+.hero-top{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:20px}
+.pill{
+display:inline-flex;align-items:center;gap:8px;
+font-size:13px;font-weight:600;color:var(--ink-2);
+background:var(--surface);border:1px solid var(--line);
+padding:6px 13px;border-radius:999px;box-shadow:var(--shadow-sm);
+}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none;box-shadow:0 0 0 4px var(--green-soft)}
+h1{
+font-family:var(--serif);
+font-size:clamp(32px,5.2vw,50px);
+line-height:1.22;font-weight:900;letter-spacing:.005em;
+margin:0 0 16px;max-width:15em;
+}
+h1 .hl{color:var(--accent);position:relative;white-space:nowrap}
+h1 .hl::after{
+content:"";position:absolute;left:0;right:0;bottom:2px;height:.32em;
+background:var(--accent-soft);z-index:-1;border-radius:2px;
+}
+.hero-sub{font-size:16.5px;color:var(--ink-2);max-width:36em;margin:0 0 24px}
+.hero-sub strong{color:var(--ink)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch}
+.wx-box{
+display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+padding:13px 15px;box-shadow:var(--shadow);
+}
+.wx-box .wx-ic{
+width:42px;height:42px;flex:none;border-radius:12px;
+background:var(--green-soft);color:var(--green);
+display:flex;align-items:center;justify-content:center;
+}
+.wx-box .label{font-size:12.5px;color:var(--ink-3);line-height:1.35}
+.wx-box .label strong{display:block;font-size:17.5px;color:var(--ink);letter-spacing:.02em;font-weight:750;font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.btn{
+appearance:none;border:0;cursor:pointer;
+font:inherit;font-weight:700;font-size:15px;
+border-radius:12px;padding:10px 19px;min-height:46px;
+display:inline-flex;align-items:center;justify-content:center;gap:8px;
+text-decoration:none;transition:transform.12s ease,background.15s ease,box-shadow.15s ease,border-color.15s ease;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 8px 18px -8px var(--accent)}
+.btn-primary:hover{background:var(--accent-deep);box-shadow:0 10px 22px -8px var(--accent)}
+@media (prefers-color-scheme: dark){.btn-primary{color:#221105}}
+.btn-ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn-ghost:hover{border-color:var(--ink-3)}
+.hero-note{
+font-size:13.5px;color:var(--ink-3);margin-top:16px;
+display:flex;gap:9px;align-items:flex-start;max-width:38em;
+}
+.hero-note svg{flex:none;margin-top:3px;color:var(--amber)}
+.hero-note strong{color:var(--ink-2)}
+
+/* Hero showcase card */
+.showcase{position:relative}
+.show-card{
+background:var(--surface);border:1px solid var(--line);border-radius:22px;
+box-shadow:var(--shadow-lg);padding:24px;position:relative;overflow:hidden;
+}
+.show-card::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,var(--accent),#d98a4b)}
+.show-card .sc-head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.show-card .sc-ic{
+width:44px;height:44px;border-radius:13px;flex:none;
+background:var(--accent-soft);color:var(--accent);
+display:flex;align-items:center;justify-content:center;
+}
+.show-card .sc-head .t{font-weight:800;font-size:16.5px;line-height:1.3}
+.show-card .sc-head .s{font-size:12.5px;color:var(--ink-3)}
+.show-card .sc-badge{
+margin-left:auto;flex:none;font-size:12px;font-weight:700;color:var(--green);
+background:var(--green-soft);padding:4px 10px;border-radius:999px;
+display:inline-flex;align-items:center;gap:5px;
+}
+.show-rows{margin:16px 0 0;padding:14px 0 0;border-top:1px dashed var(--line);display:grid;gap:11px}
+.show-rows .row{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-2)}
+.show-rows .row svg{color:var(--green);flex:none}
+.show-rows .row strong{color:var(--ink)}
+.show-rows .row .r{margin-left:auto;font-weight:750;color:var(--ink);font-size:14px;white-space:nowrap}
+.show-rows .row .r em{font-style:normal;color:var(--accent);font-size:16px}
+.show-note{
+margin-top:16px;background:var(--surface-2);border-radius:12px;padding:11px 14px;
+font-size:13px;color:var(--ink-2);display:flex;gap:9px;align-items:flex-start;
+}
+.show-note svg{flex:none;margin-top:2px;color:var(--accent)}
+.show-chip{
+position:absolute;left:-14px;bottom:26px;
+background:var(--ink);color:var(--bg);border-radius:14px;
+padding:10px 15px;box-shadow:var(--shadow-lg);
+display:flex;align-items:center;gap:10px;font-size:13px;font-weight:650;
+transform:rotate(-2deg);
+}
+.show-chip svg{color:var(--accent)}
+@media (prefers-color-scheme: dark){.show-chip svg{color:var(--accent)}}
+.show-chip small{display:block;font-weight:500;opacity:.72;font-size:11.5px}
+@media (max-width:860px){.show-chip{left:8px;bottom:-14px}}
+@media (max-width:860px){.showcase{margin-bottom:16px}}
+
+/* ---------- Trust strip ---------- */
+.strip{
+margin-top:40px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+display:grid;grid-template-columns:repeat(4,1fr);
+}
+@media (max-width:760px){.strip{grid-template-columns:1fr 1fr}}
+.strip .cell{padding:16px 18px;display:flex;gap:12px;align-items:center}
+.strip .cell + .cell{border-left:1px solid var(--line)}
+@media (max-width:760px){
+.strip .cell:nth-child(3){border-left:0}
+.strip .cell:nth-child(n+3){border-top:1px solid var(--line)}
+}
+.strip .ic{width:36px;height:36px;flex:none;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.strip .t{font-size:14px;font-weight:750;line-height:1.35}
+.strip .s{font-size:12px;color:var(--ink-3);line-height:1.4}
+
+/* ---------- Section heads ---------- */
+.section{margin-top:52px}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+.sec-title{display:flex;align-items:center;gap:13px}
+.sec-title .no{
+font-family:var(--serif);font-size:15px;font-weight:900;color:var(--accent);
+border:1.5px solid var(--accent);border-radius:50%;width:34px;height:34px;flex:none;
+display:flex;align-items:center;justify-content:center;
+}
+h2{font-family:var(--serif);font-size:25px;font-weight:900;margin:0;letter-spacing:.01em}
+.sec-head p{margin:0;color:var(--ink-3);font-size:13.5px;padding-bottom:3px}
+.sec-sub{color:var(--ink-2);font-size:14.5px;margin:6px 0 18px;max-width:44em}
+
+/* ---------- Filter ---------- */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 22px}
+.filter{
+appearance:none;cursor:pointer;font:inherit;font-size:14px;font-weight:600;
+padding:8px 18px;min-height:40px;border-radius:999px;
+background:var(--surface);color:var(--ink-2);border:1px solid var(--line);
+transition:background.15s ease,color.15s ease,border-color.15s ease;
+}
+.filter:hover{border-color:var(--ink-3)}
+.filter[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* ---------- Products ---------- */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.card{
+background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+padding:24px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;
+position:relative;transition:transform.18s ease,box-shadow.18s ease,border-color.18s ease;
+}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--ink-3)}
+.card.featured{border-color:var(--accent);border-width:1.5px;box-shadow:var(--shadow)}
+.card.featured:hover{box-shadow:var(--shadow-lg)}
+.card-tag{
+position:absolute;top:-12px;left:20px;
+background:var(--accent);color:#fff;font-size:12px;font-weight:700;
+padding:4px 12px;border-radius:999px;letter-spacing:.03em;
+display:inline-flex;align-items:center;gap:5px;box-shadow:0 6px 14px -6px var(--accent);
+}
+@media (prefers-color-scheme: dark){.card-tag{color:#221105}}
+.card-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.card-id{display:flex;gap:13px;align-items:flex-start;min-width:0}
+.card-ic{
+width:44px;height:44px;flex:none;border-radius:13px;
+background:var(--surface-2);color:var(--accent);
+display:flex;align-items:center;justify-content:center;
+border:1px solid var(--line);
+}
+.card.featured .card-ic{background:var(--accent-soft);border-color:transparent}
+.card-cat{font-size:11.5px;font-weight:700;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase;margin-bottom:4px}
+.card h3{font-size:19px;font-weight:800;margin:0;line-height:1.3}
+.price{flex:none;text-align:right}
+.price .num{font-size:29px;font-weight:800;letter-spacing:-.02em;line-height:1.05;font-variant-numeric:tabular-nums}
+.price .num small{font-size:15px;font-weight:700;color:var(--accent);margin-right:1px}
+.price .per{font-size:12px;color:var(--ink-3)}
+.card-desc{color:var(--ink-2);font-size:14.5px;margin:13px 0 0}
+.includes{list-style:none;margin:15px 0 0;padding:15px 0 0;border-top:1px dashed var(--line);display:grid;gap:8px}
+.includes li{font-size:14px;color:var(--ink-2);display:flex;gap:9px;align-items:flex-start}
+.includes li svg{flex:none;margin-top:3px;color:var(--green)}
+.includes li strong{color:var(--ink);font-weight:650}
+.card-foot{margin-top:auto;padding-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.warranty{
+display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:650;
+padding:6px 11px;border-radius:999px;
+}
+.warranty svg{flex:none}
+.warranty.first{background:var(--amber-soft);color:var(--amber)}
+.warranty.pass{background:var(--green-soft);color:var(--green)}
+.card-foot .btn{flex:1;min-width:132px}
+.renew-note{
+font-size:13px;color:var(--ink-2);margin-top:13px;
+background:var(--accent-soft);border-radius:10px;padding:9px 13px;
+display:flex;gap:8px;align-items:flex-start;
+}
+.renew-note svg{flex:none;margin-top:2px;color:var(--accent)}
+.renew-note strong{color:var(--accent-deep)}
+
+/* ---------- Order box ---------- */
+.order-box{
+background:var(--ink);color:var(--bg);border-radius:22px;
+box-shadow:var(--shadow-lg);padding:26px;margin-top:22px;position:relative;overflow:hidden;
+}
+.order-box::after{
+content:"";position:absolute;top:-70px;right:-50px;width:230px;height:230px;border-radius:50%;
+background:radial-gradient(circle,var(--accent-glow),transparent 70%);
+}
+.order-box h3{margin:0 0 5px;font-size:17px;font-weight:800;display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.order-box h3 svg{color:var(--accent)}
+.order-box p{margin:0;font-size:14px;opacity:.78;position:relative;z-index:1;max-width:46em}
+.order-box p strong{opacity:1}
+.order-msg{
+margin-top:16px;background:rgba(127,110,80,.16);border:1px solid rgba(160,140,105,.4);border-radius:12px;
+padding:15px 17px;font-size:15.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word;
+position:relative;z-index:1;
+}
+@media (prefers-color-scheme: dark){.order-msg{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.14)}}
+.order-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;position:relative;z-index:1}
+.order-actions .btn{min-height:47px}
+.order-actions .btn-ghost{background:transparent;color:var(--bg);border-color:rgba(160,140,105,.55)}
+.order-actions .btn-ghost:hover{border-color:var(--bg)}
+@media (prefers-color-scheme: dark){.order-actions .btn-ghost{border-color:rgba(255,255,255,.3)}}
+
+/* ---------- Steps ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
+@media (max-width:860px){.steps{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.steps{grid-template-columns:1fr}}
+.step{
+background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+padding:20px;box-shadow:var(--shadow-sm);position:relative;
+}
+.step .n{
+font-family:var(--serif);width:34px;height:34px;border-radius:50%;
+background:var(--accent);color:#fff;
+font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+box-shadow:0 6px 14px -6px var(--accent);
+}
+@media (prefers-color-scheme: dark){.step .n{color:#221105}}
+.step h3{font-size:15.5px;margin:0 0 5px;font-weight:750}
+.step p{margin:0;font-size:13.5px;color:var(--ink-2)}
+.step .wx-inline{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:700;color:var(--ink);font-size:12.5px;word-break:break-all}
+
+/* ---------- Warranty detail ---------- */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:760px){.two-col{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm)}
+.panel h3{margin:0 0 14px;font-size:16.5px;font-weight:800;display:flex;align-items:center;gap:10px}
+.panel h3 .p-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.panel.cover h3 .p-ic{background:var(--green-soft);color:var(--green)}
+.panel.nocover h3 .p-ic{background:var(--accent-soft);color:var(--accent)}
+.panel ul{margin:0;padding:0;list-style:none;display:grid;gap:11px}
+.panel li{font-size:14.5px;color:var(--ink-2);display:flex;gap:10px;align-items:flex-start}
+.panel li svg{flex:none;margin-top:3px}
+.panel.cover li svg{color:var(--green)}
+.panel.nocover li svg{color:var(--accent)}
+.panel li strong{color:var(--ink)}
+
+/* ---------- FAQ ---------- */
+.faq{display:grid;gap:10px}
+details{
+background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:2px 20px;
+transition:border-color.15s ease;
+}
+details[open]{border-color:var(--ink-3)}
+summary{cursor:pointer;font-weight:700;font-size:15.5px;padding:15px 0;list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center;min-height:48px}
+summary::-webkit-details-marker{display:none}
+summary .chev{flex:none;color:var(--ink-3);transition:transform.2s ease;display:flex}
+details[open] summary .chev{transform:rotate(180deg)}
+details p{margin:0 0 17px;color:var(--ink-2);font-size:14.5px;max-width:46em}
+
+footer{
+margin-top:56px;border-top:1px solid var(--line);padding-top:22px;color:var(--ink-3);font-size:13.5px;
+display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:space-between;align-items:center;
+}
+footer .f-brand{display:flex;align-items:center;gap:9px;color:var(--ink-2);font-weight:700}
+footer .f-brand svg{color:var(--accent)}
+footer strong{color:var(--ink-2)}
+
+/* ---------- Sticky mobile bar ---------- */
+.sticky-bar{
+position:fixed;left:0;right:0;bottom:0;z-index:20;
+background:var(--surface);border-top:1px solid var(--line);
+padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+display:none;align-items:center;gap:12px;box-shadow:0 -8px 24px rgba(33,26,18,.08);
+}
+.sticky-bar .info{flex:1;min-width:0}
+.sticky-bar .info .t{font-size:11.5px;color:var(--ink-3);line-height:1.3}
+.sticky-bar .info .w{font-size:15px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.sticky-bar .btn{min-height:44px;flex:none}
+@media (max-width:760px){
+.sticky-bar{display:flex}
+.wrap{padding-bottom:110px}
+}
+
+.toast{
+position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(12px);
+background:var(--ink);color:var(--bg);font-size:14px;font-weight:600;
+padding:12px 22px;border-radius:999px;opacity:0;pointer-events:none;transition:.22s ease;z-index:30;
+max-width:calc(100vw - 40px);text-align:center;box-shadow:var(--shadow-lg);
+display:flex;align-items:center;gap:8px;justify-content:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion: reduce){
+html{scroll-behavior:auto}
+.btn,.toast,.card,summary .chev{transition:none}
+.card:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="backdrop" aria-hidden="true">
+<div class="dots"></div>
+<svg class="burst" width="120" height="120" viewBox="0 0 100 100" fill="currentColor"><path d="M50 0 L56 34 L88 14 L64 42 L100 44 L68 56 L92 82 L58 62 L54 100 L46 64 L14 88 L34 56 L0 50 L36 42 L12 16 L44 36 Z"/></svg>
+</div>
+<main>
+
+<!-- Hero -->
+<section class="hero">
+<div>
+<div class="hero-top">
+<span class="pill"><span class="dot"></span>只卖 Claude · 现货先确认再付款</span>
+<span class="pill">微信下单 · 不接在线支付</span>
+</div>
+<h1>Claude 成品号与 KYC 验证，<span class="hl">加微信直接下单</span></h1>
+<p class="hero-sub">Pro 成品号、Max 5X、已过 KYC 普通号和 KYC 代过服务，<strong>价格和质保都写在下面，不绕弯子</strong>。看中哪件，复制微信号加我，确认有货再付款，付款后拿号、当场登录验证。</p>
+<div class="hero-actions">
+<div class="wx-box">
+<div class="wx-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/></svg></div>
+<div class="label">微信号（点击复制）<strong>Onexiaomubiaopaolu</strong></div>
+<button class="btn btn-primary" type="button" data-copy-wx><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>复制微信号</button>
+</div>
+<a class="btn btn-ghost" href="#products" style="align-self:center">先看商品 ↓</a>
+</div>
+<p class="hero-note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span><strong>先说清：</strong>成品号质保<strong>只保首次登录</strong>——登不上免费换号，登录成功后封号不在质保内。能接受再下单，下面每件商品都标了。</span></p>
+</div>
+
+<div class="showcase" aria-hidden="true">
+<div class="show-card">
+<div class="sc-head">
+<div class="sc-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m11 12 10-10"/><path d="m15 6 3 3"/></svg></div>
+<div><div class="t">Claude Pro 成品号</div><div class="s">已订 Pro · 已过 KYC · 交付即用</div></div>
+<span class="sc-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>现货</span>
+</div>
+<div class="show-rows">
+<div class="row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>身份验证</strong> 已通过，不再弹 KYC</span><span class="r">已过 KYC</span></div>
+<div class="row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>交付方式</strong> 邮箱 + 密码</span><span class="r">登录即用</span></div>
+<div class="row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>质保</strong> 只保首次登录，登不上换号</span><span class="r"><em>¥599</em> / 个</span></div>
+</div>
+<div class="show-note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>先在微信确认库存，有货付款后拿号，一般当天交付。</span></div>
+</div>
+<div class="show-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span>质保写在明处<small>只保首登 · 不玩文字游戏</small></span></div>
+</div>
+</section>
+
+<!-- Trust strip -->
+<div class="strip">
+<div class="cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div><div class="t">当天交付</div><div class="s">有货付款后即拿号</div></div></div>
+<div class="cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div><div><div class="t">登不上换号</div><div class="s">首登质保，换到能登为止</div></div></div>
+<div class="cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div><div><div class="t">先确认再付款</div><div class="s">库存、KYC 都先核对</div></div></div>
+<div class="cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></div><div><div class="t">微信人工下单</div><div class="s">不接在线支付，不绕弯</div></div></div>
+</div>
+
+<!-- Products -->
+<section class="section" id="products">
+<div class="sec-head">
+<div class="sec-title"><span class="no">1</span><h2>商品列表</h2></div>
+<p>价格为单个 / 单次价 · 库存以微信确认时为准</p>
+</div>
+
+<div class="filters" role="group" aria-label="商品分类">
+<button class="filter" type="button" data-filter="all" aria-pressed="true">全部</button>
+<button class="filter" type="button" data-filter="account" aria-pressed="false">成品号</button>
+<button class="filter" type="button" data-filter="kyc" aria-pressed="false">KYC 服务</button>
+</div>
+
+<div class="grid" id="productGrid">
+
+<!-- Pro 成品号 -->
+<article class="card featured" data-cat="account" data-name="Claude Pro 成品号" data-price="599">
+<span class="card-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.5 2.2 13 9l6.8-2.4-4.9 5.2 6.6 3-7.2.6 3.4 6.4-6.2-3.8-1.5 7-1.5-7-6.2 3.8L6.7 15.4.5 14.8l6.6-3L2.2 6.6 9 9z" transform="scale(.92) translate(1 1)"/></svg>最受欢迎</span>
+<div class="card-head">
+<div class="card-id">
+<div class="card-ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m11 12 10-10"/><path d="m15 6 3 3"/></svg></div>
+<div>
+<div class="card-cat">成品号 · Pro</div>
+<h3>Claude Pro 成品号</h3>
+</div>
+</div>
+<div class="price"><div class="num"><small>¥</small>599</div><div class="per">/ 个</div></div>
+</div>
+<p class="card-desc">已经订好 Pro、已经过 KYC 的成品账号，拿到手登录就能用，不用自己折腾注册、验证和付款。</p>
+<ul class="includes">
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>已过 KYC</strong> 身份验证，不用再弹验证</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>交付邮箱 + 密码，<strong>登录即用</strong></span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>适合第一次买、想直接上手用 Pro 的人</span></li>
+</ul>
+<div class="card-foot">
+<span class="warranty first"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>质保：只保首次登录</span>
+<button class="btn btn-primary" type="button" data-buy>微信下单</button>
+</div>
+</article>
+
+<!-- 稳定包 -->
+<article class="card" data-cat="account" data-name="Claude Pro 稳定包（账号+环境配置+首登陪跑）" data-price="649">
+<div class="card-head">
+<div class="card-id">
+<div class="card-ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div>
+<div>
+<div class="card-cat">成品号 · Pro</div>
+<h3>Claude Pro 稳定包</h3>
+</div>
+</div>
+<div class="price"><div class="num"><small>¥</small>649</div><div class="per">/ 套</div></div>
+</div>
+<p class="card-desc">在 Pro 成品号的基础上，多了环境配置和首登陪跑。自己搞过、被封过号的，问题多半出在环境上，别再裸号硬登。</p>
+<ul class="includes">
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>Pro 成品号 1 个</strong>（已过 KYC）</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>环境配置</strong>：节点与浏览器环境按可用方案配好</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>首登陪跑</strong>：一步步带你完成第一次登录验证</span></li>
+</ul>
+<div class="card-foot">
+<span class="warranty first"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>质保：只保首次登录</span>
+<button class="btn btn-primary" type="button" data-buy>微信下单</button>
+</div>
+<p class="renew-note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>比裸号贵 ¥50，贵在环境和陪跑——<strong>被封过号的优先选这个</strong>。</span></p>
+</article>
+
+<!-- Max 5X -->
+<article class="card" data-cat="account" data-name="Claude Max 5X 成品号" data-price="1700">
+<div class="card-head">
+<div class="card-id">
+<div class="card-ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+<div>
+<div class="card-cat">成品号 · Max</div>
+<h3>Claude Max 5X 成品号</h3>
+</div>
+</div>
+<div class="price"><div class="num"><small>¥</small>1700</div><div class="per">/ 个</div></div>
+</div>
+<p class="card-desc">Max 5X 成品号，用量是 Pro 的 5 倍。Pro 经常撞限额、Claude 用量大的，直接上这一档。</p>
+<ul class="includes">
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>已过 KYC</strong> 身份验证</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>用量为 <strong>Pro 的 5 倍</strong>，适合重度使用</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>交付邮箱 + 密码，登录即用</span></li>
+</ul>
+<div class="card-foot">
+<span class="warranty first"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>质保：只保首次登录</span>
+<button class="btn btn-primary" type="button" data-buy>微信下单</button>
+</div>
+</article>
+
+<!-- 普通号 -->
+<article class="card" data-cat="account" data-name="已过 KYC 普通号（无订阅）" data-price="299">
+<div class="card-head">
+<div class="card-id">
+<div class="card-ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg></div>
+<div>
+<div class="card-cat">成品号 · 无订阅</div>
+<h3>已过 KYC 普通号</h3>
+</div>
+</div>
+<div class="price"><div class="num"><small>¥</small>299</div><div class="per">/ 个</div></div>
+</div>
+<p class="card-desc">没有订阅的普通账号，但 KYC 已经过完。适合想拿一个干净底子、之后自己订阅的人。</p>
+<ul class="includes">
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>已过 KYC</strong>，后续订阅不再卡验证</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>无订阅（Free 状态），交付邮箱 + 密码</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>订阅方式自己定，验证这一关已经替你过完</span></li>
+</ul>
+<div class="card-foot">
+<span class="warranty first"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>质保：只保首次登录</span>
+<button class="btn btn-primary" type="button" data-buy>微信下单</button>
+</div>
+</article>
+
+<!-- 订阅 KYC -->
+<article class="card" data-cat="kyc" data-name="订阅 KYC（美区）代过" data-price="490">
+<div class="card-head">
+<div class="card-id">
+<div class="card-ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><path d="m10.5 15.5 1.2 1.2 2.3-2.4"/></svg></div>
+<div>
+<div class="card-cat">KYC 服务</div>
+<h3>订阅 KYC 代过 · 美区</h3>
+</div>
+</div>
+<div class="price"><div class="num"><small>¥</small>490</div><div class="per">/ 次</div></div>
+</div>
+<p class="card-desc">你自己的号订阅时弹了 Persona 身份验证、大陆证件过不了的，走这项。下单前先确认你的号能触发验证页。</p>
+<ul class="includes">
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>适用于<strong>订阅时弹 KYC 验证</strong>的账号</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>流程：你触发验证页 → 把验证页发我 → 我这边处理</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>下单前先发验证页截图，<strong>确认能办再付款</strong></span></li>
+</ul>
+<div class="card-foot">
+<span class="warranty pass"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>先确认 · 再付款</span>
+<button class="btn btn-primary" type="button" data-buy>微信咨询下单</button>
+</div>
+</article>
+
+<!-- Portal KYC -->
+<article class="card" data-cat="kyc" data-name="Portal KYC 真人验证代过" data-price="580">
+<div class="card-head">
+<div class="card-id">
+<div class="card-ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></div>
+<div>
+<div class="card-cat">KYC 服务</div>
+<h3>Portal KYC 代过</h3>
+</div>
+</div>
+<div class="price"><div class="num"><small>¥</small>580</div><div class="per">/ 次</div></div>
+</div>
+<p class="card-desc">弹的是 Portal 真人验证通道的，走这项。和订阅 KYC 不是一回事，下单前把你弹出的验证页面截图发我，我先帮你分清是哪种。</p>
+<ul class="includes">
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>适用于 <strong>Portal 真人验证</strong>通道</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>分不清订阅 KYC 还是 Portal 的，先发截图我判断</span></li>
+<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>下单前先发验证页截图，<strong>确认能办再付款</strong></span></li>
+</ul>
+<div class="card-foot">
+<span class="warranty pass"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>先确认 · 再付款</span>
+<button class="btn btn-primary" type="button" data-buy>微信咨询下单</button>
+</div>
+</article>
+
+</div>
+
+<!-- Order message builder -->
+<div class="order-box" id="orderBox">
+<h3><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>下单话术 · 已帮你写好</h3>
+<p>点任意商品的「微信下单」，下面这段会自动换成对应商品。复制后加微信 <strong>Onexiaomubiaopaolu</strong>，粘贴发送就行。</p>
+<div class="order-msg" id="orderMsg">你好，我想买「Claude Pro 成品号 ¥599」，还有货吗？质保是只保首次登录，我了解了。</div>
+<div class="order-actions">
+<button class="btn btn-primary" type="button" id="copyMsgBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>复制这段话</button>
+<button class="btn btn-ghost" type="button" data-copy-wx>复制微信号 Onexiaomubiaopaolu</button>
+</div>
+</div>
+</section>
+
+<!-- Steps -->
+<section class="section">
+<div class="sec-head">
+<div class="sec-title"><span class="no">2</span><h2>下单流程</h2></div>
+</div>
+<p class="sec-sub">本站不接在线支付，全部走微信人工下单，流程就四步。</p>
+<div class="steps">
+<div class="step"><div class="n">1</div><h3>加微信确认</h3><p>加微信 <span class="wx-inline">Onexiaomubiaopaolu</span>，说要哪件，先确认有没有货、价格对不对。</p></div>
+<div class="step"><div class="n">2</div><h3>付款</h3><p>确认有货后再付款。没确认之前不要先转钱。</p></div>
+<div class="step"><div class="n">3</div><h3>交付账号</h3><p>收款后拿号，把邮箱和密码发你；KYC 服务按流程提交验证页。</p></div>
+<div class="step"><div class="n">4</div><h3>当场验号</h3><p>收到后请尽快在干净节点登录验证。登不上按质保免费换号。</p></div>
+</div>
+</section>
+
+<!-- Warranty -->
+<section class="section">
+<div class="sec-head">
+<div class="sec-title"><span class="no">3</span><h2>质保说明</h2></div>
+</div>
+<p class="sec-sub">质保口径先写在明处，下单前看完。成品号这一行当的通病是封号风险，我不说「永不封号」这种话。</p>
+<div class="two-col">
+<div class="panel cover">
+<h3><span class="p-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span>保这些</h3>
+<ul>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>首次登录登不上</strong>：免费换号，直到你登上为止</span></li>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>KYC 先确认再付款</strong>：先发验证页截图，确认你的号能办再下单付款</span></li>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><strong>交付信息有误</strong>：邮箱密码不对、号已带订阅冲突等交付问题，找我处理</span></li>
+</ul>
+</div>
+<div class="panel nocover">
+<h3><span class="p-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></span>不保这些</h3>
+<ul>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg><span><strong>登录成功后的封号</strong>：一旦你登录成功即完成交付，后续被封不退不换</span></li>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg><span><strong>环境问题导致的风控</strong>：用大陆 IP 直连、频繁换节点、共享给多人用，出问题不在质保内</span></li>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg><span><strong>官方政策变化</strong>：Claude 官方收紧验证或封号策略导致的影响，不在质保内</span></li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section class="section">
+<div class="sec-head">
+<div class="sec-title"><span class="no">4</span><h2>常见问题</h2></div>
+</div>
+<div class="faq" style="margin-top:16px">
+<details>
+<summary>为什么只保首次登录？<span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+<p>成品号交付后，账号在谁手里、用什么环境登录，我这边控制不了，所以行业口径都是只保首登：我保证给你的号能登上，登不上我换到你能登为止；登上之后怎么用、会不会被官方风控封掉，没法替你担保。怕环境出问题的，选稳定包，首登有人陪跑。</p>
+</details>
+<details>
+<summary>裸号和稳定包怎么选？<span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+<p>自己有干净的美国节点、登过 Claude 没出过事的，买裸号 ¥599 就够。之前自己搞被封过、或者第一次买完全不懂环境的，选稳定包 ¥649，环境配置和首登陪跑都包含，少走弯路。</p>
+</details>
+<details>
+<summary>Pro 和 Max 5X 差在哪？<span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+<p>主要是用量：Max 5X 的用量是 Pro 的 5 倍。日常聊天、写东西用 Pro 足够；天天跑 Claude、长对话、高频使用经常撞限额的，上 Max 5X。</p>
+</details>
+<details>
+<summary>普通号和成品号有什么区别？<span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+<p>普通号 ¥299 没有订阅，是 Free 状态，但 KYC 已经过完，胜在便宜、底子干净，之后订阅不用再卡验证。成品号是订阅已经开好、拿到直接用。只想先占个已过验证的号、订阅以后再说，选普通号。</p>
+</details>
+<details>
+<summary>订阅 KYC 和 Portal KYC 我该买哪个？<span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+<p>看你账号弹出的验证页面是哪种通道：订阅流程里弹的 Persona 验证是订阅 KYC ¥490，弹 Portal 真人验证的是 ¥580。分不清就把验证页截图发我微信，我看完告诉你买哪个，不会让你多花钱。</p>
+</details>
+<details>
+<summary>多久能交付？<span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+<p>先在微信确认库存，有货付款后就拿号交付，一般当天完成。没货我会直接告诉你，不收钱让你干等。</p>
+</details>
+</div>
+</section>
+
+<footer>
+<span class="f-brand"><svg width="17" height="17" viewBox="0 0 100 100" fill="currentColor"><path d="M50 0 L56 34 L88 14 L64 42 L100 44 L68 56 L92 82 L58 62 L54 100 L46 64 L14 88 L34 56 L0 50 L36 42 L12 16 L44 36 Z"/></svg>Claude 商城 · 只卖 Claude 账号与 KYC 服务</span>
+<span>下单微信：<strong>Onexiaomubiaopaolu</strong> · 本站不接在线支付，下单前请先确认库存与质保</span>
+</footer>
+</main>
+</div>
+
+<div class="sticky-bar">
+<div class="info"><div class="t">下单微信 · 点右侧复制</div><div class="w">Onexiaomubiaopaolu</div></div>
+<button class="btn btn-primary" type="button" data-copy-wx>复制微信号</button>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+var WX = "Onexiaomubiaopaolu";
+var toast = document.getElementById("toast");
+var toastTimer = null;
+function showToast(msg){
+toast.textContent = msg;
+toast.classList.add("show");
+clearTimeout(toastTimer);
+toastTimer = setTimeout(function(){ toast.classList.remove("show");}, 2400);
+}
+function copyText(text, okMsg){
+function done(){ showToast(okMsg);}
+function fallback(){
+var ta = document.createElement("textarea");
+ta.value = text;
+ta.style.position = "fixed"; ta.style.opacity = "0";
+document.body.appendChild(ta);
+ta.select();
+try { document.execCommand("copy"); done();}
+catch(e){ showToast("复制失败，请长按手动复制：" + text);}
+document.body.removeChild(ta);
+}
+if (navigator.clipboard && navigator.clipboard.writeText){
+navigator.clipboard.writeText(text).then(done, fallback);
+} else { fallback();}
+}
+
+// Copy WeChat ID
+var wxBtns = document.querySelectorAll("[data-copy-wx]");
+for (var i = 0; i < wxBtns.length; i++){
+wxBtns[i].addEventListener("click", function(){
+copyText(WX, "微信号已复制： " + WX + "，去微信添加即可");
+});
+}
+
+// Order message builder
+var orderMsg = document.getElementById("orderMsg");
+var currentMsg = orderMsg.textContent;
+var cards = document.querySelectorAll(".card[data-name]");
+cards.forEach(function(card){
+var btn = card.querySelector("[data-buy]");
+if (!btn) return;
+btn.addEventListener("click", function(){
+var name = card.getAttribute("data-name");
+var price = card.getAttribute("data-price");
+var isKyc = card.getAttribute("data-cat") === "kyc";
+currentMsg = isKyc
+? "你好，我想办「" + name + " ¥" + price + "」，我先把验证页截图发你确认一下。"
+: "你好，我想买「" + name + " ¥" + price + "」，还有货吗？质保是只保首次登录，我了解了。";
+orderMsg.textContent = currentMsg;
+document.getElementById("orderBox").scrollIntoView({ behavior: "smooth", block: "center"});
+copyText(currentMsg, "下单话术已复制，再复制微信号加我发送即可");
+});
+});
+document.getElementById("copyMsgBtn").addEventListener("click", function(){
+copyText(currentMsg, "下单话术已复制，加微信 " + WX + " 粘贴发送");
+});
+
+// Filters
+var filters = document.querySelectorAll("[data-filter]");
+filters.forEach(function(f){
+f.addEventListener("click", function(){
+var val = f.getAttribute("data-filter");
+filters.forEach(function(x){ x.setAttribute("aria-pressed", x === f? "true": "false");});
+cards.forEach(function(card){
+var cat = card.getAttribute("data-cat");
+card.style.display = (val === "all" || val === cat)? "": "none";
+});
+});
+});
+})();
+</script>
+</body>
+</html>
